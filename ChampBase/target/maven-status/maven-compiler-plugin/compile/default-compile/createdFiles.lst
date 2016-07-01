@@ -1,0 +1,13 @@
+com/champ/base/request/GetUserTransactionRequest.class
+com/champ/base/response/SigninResponse.class
+com/champ/base/response/UserTransaction.class
+com/champ/base/request/SignupRequest.class
+com/champ/base/response/GetUserTransactionResponse.class
+com/champ/base/request/SigninRequest.class
+com/champ/base/request/BaseRequest.class
+com/champ/base/request/GetUserBanksRequest.class
+com/champ/base/response/UserBank.class
+com/champ/base/response/SignupResponse.class
+com/champ/base/request/CreateUserSessionRequest.class
+com/champ/base/response/GetUserBankResponse.class
+com/champ/base/response/BaseResponse.class
