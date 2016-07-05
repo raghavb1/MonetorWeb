@@ -11,9 +11,11 @@ import com.champ.gmail.api.response.GmailTokensResponse;
 
 public interface IConverterService {
 
-	public AppUser getUserFromRequest(GmailTokensResponse request);
-	
+	public AppUser getUserFromRequest(GmailTokensResponse request, AppUser user);
+
 	public List<UserBank> getUserBankFromBanks(List<Bank> banks);
-	
+
 	public List<UserTransaction> getUserTransactions(List<AppUserTransaction> transactions);
+
+	public String generateTokenForUser();
 }

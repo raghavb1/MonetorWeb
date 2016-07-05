@@ -12,9 +12,14 @@ import org.springframework.stereotype.Service;
 
 import com.champ.base.response.UserBank;
 import com.champ.base.response.UserTransaction;
+import com.champ.core.cache.PropertyMapCache;
 import com.champ.core.entity.AppUser;
 import com.champ.core.entity.AppUserTransaction;
 import com.champ.core.entity.Bank;
+import com.champ.core.enums.Property;
+import com.champ.core.utility.CacheManager;
+import com.champ.core.utility.DateUtils;
+import com.champ.core.utility.DateUtils.TimeUnit;
 import com.champ.gmail.api.response.GmailTokensResponse;
 import com.champ.services.IConverterService;
 
@@ -23,15 +28,22 @@ public class ConverterServiceImpl implements IConverterService {
 
 	private SecureRandom secureRandom = new SecureRandom();
 
-	public AppUser getUserFromRequest(GmailTokensResponse request) {
-		AppUser user = new AppUser();
+	public AppUser getUserFromRequest(GmailTokensResponse request, AppUser user) {
+		if (user == null) {
+			user = new AppUser();
+		}
 		user.setEmail(request.getEmail());
 		user.setToken(generateTokenForUser());
 		user.setAccessToken(request.getAccessToken());
 		user.setRefreshToken(request.getRefreshToken());
-		// TODO Correct this
-		user.setTokenExpiryTime(new Date());
-		user.setGmailExpiryTime(new Date());
+		user.setTokenExpiryTime(DateUtils.addToDate(new Date(), TimeUnit.SECONDS, CacheManager.getInstance()
+				.getCache(PropertyMapCache.class).getPropertyInteger(Property.TOKEN_EXPIRY_UPDATE_SECONDS)));
+		if (request.getGmailTokenExpirySeconds() != null) {
+			user.setGmailExpiryTime(
+					DateUtils.addToDate(new Date(), TimeUnit.SECONDS, request.getGmailTokenExpirySeconds()));
+		} else {
+			user.setGmailExpiryTime(new Date());
+		}
 		return user;
 	}
 
@@ -44,7 +56,7 @@ public class ConverterServiceImpl implements IConverterService {
 	 * a random UUID, which only has 3.4 bits per character in standard layout,
 	 * and only 122 random bits in total.
 	 **/
-	private String generateTokenForUser() {
+	public String generateTokenForUser() {
 		return new BigInteger(130, secureRandom).toString(32);
 	}
 

@@ -1,5 +1,6 @@
 package com.champ.services.impl;
 
+import java.util.Date;
 import java.util.List;
 
 import javax.transaction.Transactional;
@@ -9,21 +10,24 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.champ.base.request.BaseRequest;
 import com.champ.base.request.GetUserBanksRequest;
 import com.champ.base.request.GetUserTransactionRequest;
-import com.champ.base.request.SigninRequest;
 import com.champ.base.response.GetUserBankResponse;
 import com.champ.base.response.GetUserTransactionResponse;
-import com.champ.base.response.SigninResponse;
 import com.champ.base.response.SignupResponse;
 import com.champ.base.response.UserBank;
 import com.champ.core.cache.AppUserBankCache;
+import com.champ.core.cache.PropertyMapCache;
 import com.champ.core.entity.AppUser;
 import com.champ.core.entity.AppUserTransaction;
 import com.champ.core.entity.Bank;
 import com.champ.core.enums.ApiResponseCodes;
+import com.champ.core.enums.Property;
 import com.champ.core.exception.MonetorServiceException;
 import com.champ.core.utility.CacheManager;
+import com.champ.core.utility.DateUtils;
+import com.champ.core.utility.DateUtils.TimeUnit;
 import com.champ.gmail.api.response.GmailTokensResponse;
 import com.champ.services.IApiService;
 import com.champ.services.IAppUserService;
@@ -47,22 +51,27 @@ public class ApiServiceImpl implements IApiService {
 
 	public SignupResponse signup(GmailTokensResponse request) throws Exception {
 		SignupResponse response = new SignupResponse();
-		if (appUserService.checkUser(request.getEmail())) {
-			AppUser user = converterService.getUserFromRequest(request);
-			user = appUserService.saveOrUpdateUser(user);
-			response.setEmail(user.getEmail());
-			response.setToken(user.getToken());
-		} else {
-			LOG.info("User with email {} already exists", request.getEmail());
-			throw new MonetorServiceException(ApiResponseCodes.USER_EXISTS);
+		AppUser user = null;
+		if (!appUserService.checkUser(request.getEmail())) {
+			user = appUserService.getUserByEmail(request.getEmail());
 		}
+		user = converterService.getUserFromRequest(request, user);
+		user = appUserService.saveOrUpdateUser(user);
+		response.setEmail(user.getEmail());
+		response.setToken(user.getToken());
 		return response;
 	}
 
-	public SigninResponse signin(SigninRequest request) throws Exception {
-		SigninResponse response = new SigninResponse();
-		AppUser user = appUserService.authenticateUser(request.getEmail(), request.getPassword());
+	public SignupResponse signin(BaseRequest request) throws Exception {
+		SignupResponse response = new SignupResponse();
+		AppUser user = appUserService.authenticateUser(request.getEmail(), request.getToken());
 		if (user != null) {
+			if (DateUtils.isDatePassed(user.getTokenExpiryTime())) {
+				user.setToken(converterService.generateTokenForUser());
+				user.setTokenExpiryTime(DateUtils.addToDate(new Date(), TimeUnit.SECONDS, CacheManager.getInstance()
+						.getCache(PropertyMapCache.class).getPropertyInteger(Property.TOKEN_EXPIRY_UPDATE_SECONDS)));
+				user = appUserService.saveOrUpdateUser(user);
+			}
 			response.setEmail(user.getEmail());
 			response.setToken(user.getToken());
 		} else {

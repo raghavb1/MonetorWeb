@@ -14,5 +14,5 @@ public interface IAppUserService {
 	
 	public List<AppUser> getAllUsers();
 	
-	public AppUser authenticateUser(String email, String password);
+	public AppUser authenticateUser(String email, String token);
 }

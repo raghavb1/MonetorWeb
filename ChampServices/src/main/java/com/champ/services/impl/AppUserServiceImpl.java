@@ -34,8 +34,8 @@ public class AppUserServiceImpl implements IAppUserService {
 		return appUserDao.getAllUsers();
 	}
 
-	public AppUser authenticateUser(String email, String password) {
-		return appUserDao.authenticateUser(email, password);
+	public AppUser authenticateUser(String email, String token) {
+		return appUserDao.authenticateUser(email, token);
 	}
 
 }
