@@ -29,6 +29,7 @@ import com.champ.core.utility.CacheManager;
 import com.champ.core.utility.DateUtils;
 import com.champ.core.utility.DateUtils.TimeUnit;
 import com.champ.gmail.api.response.GmailTokensResponse;
+import com.champ.gmail.api.response.UserInfoResponse;
 import com.champ.services.IApiService;
 import com.champ.services.IAppUserService;
 import com.champ.services.IAppUserTransactionService;
@@ -49,13 +50,13 @@ public class ApiServiceImpl implements IApiService {
 
 	private static final Logger LOG = LoggerFactory.getLogger(ApiServiceImpl.class);
 
-	public SignupResponse signup(GmailTokensResponse request) throws Exception {
+	public SignupResponse signup(GmailTokensResponse request, UserInfoResponse userInfo) throws Exception {
 		SignupResponse response = new SignupResponse();
 		AppUser user = null;
-		if (!appUserService.checkUser(request.getEmail())) {
-			user = appUserService.getUserByEmail(request.getEmail());
+		if (!appUserService.checkUser(userInfo.getEmail())) {
+			user = appUserService.getUserByEmail(userInfo.getEmail());
 		}
-		user = converterService.getUserFromRequest(request, user);
+		user = converterService.getUserFromRequest(request, userInfo,user);
 		user = appUserService.saveOrUpdateUser(user);
 		response.setEmail(user.getEmail());
 		response.setToken(user.getToken());

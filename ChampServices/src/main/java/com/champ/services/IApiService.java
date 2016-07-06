@@ -7,10 +7,11 @@ import com.champ.base.response.GetUserBankResponse;
 import com.champ.base.response.GetUserTransactionResponse;
 import com.champ.base.response.SignupResponse;
 import com.champ.gmail.api.response.GmailTokensResponse;
+import com.champ.gmail.api.response.UserInfoResponse;
 
 public interface IApiService {
 
-	public SignupResponse signup(GmailTokensResponse request) throws Exception;
+	public SignupResponse signup(GmailTokensResponse request, UserInfoResponse userInfo) throws Exception;
 
 	public SignupResponse signin(BaseRequest request) throws Exception;
 

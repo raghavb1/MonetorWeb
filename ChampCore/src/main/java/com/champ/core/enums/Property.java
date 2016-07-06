@@ -6,7 +6,7 @@ public enum Property {
 	CACHE_RELOAD_PASSWORD								("cache.reload.password","testing"),
 	API_AUTHENTICATION_KEY								("api.authentication.key","Entering"),
 	CACHE_RELOAD_PERIOD									("cache.reload.period", "60"),
-	GMAIL_REDIRECT_URL									("gmail.redirect.url", "http://localhost:8080/Monetor/service/signupCallback"),
+	GMAIL_REDIRECT_URL									("gmail.redirect.url", "http://monetor.in:8080/Monetor/service/signupCallback"),
 	TOKEN_EXPIRY_UPDATE_SECONDS							("token.expiry.update.seconds", "3600");
 
 	private String name;

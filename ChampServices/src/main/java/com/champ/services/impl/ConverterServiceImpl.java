@@ -21,6 +21,7 @@ import com.champ.core.utility.CacheManager;
 import com.champ.core.utility.DateUtils;
 import com.champ.core.utility.DateUtils.TimeUnit;
 import com.champ.gmail.api.response.GmailTokensResponse;
+import com.champ.gmail.api.response.UserInfoResponse;
 import com.champ.services.IConverterService;
 
 @Service("converterService")
@@ -28,11 +29,11 @@ public class ConverterServiceImpl implements IConverterService {
 
 	private SecureRandom secureRandom = new SecureRandom();
 
-	public AppUser getUserFromRequest(GmailTokensResponse request, AppUser user) {
+	public AppUser getUserFromRequest(GmailTokensResponse request, UserInfoResponse userInfo, AppUser user) {
 		if (user == null) {
 			user = new AppUser();
 		}
-		user.setEmail(request.getEmail());
+		user.setEmail(userInfo.getEmail());
 		user.setToken(generateTokenForUser());
 		user.setAccessToken(request.getAccessToken());
 		user.setRefreshToken(request.getRefreshToken());

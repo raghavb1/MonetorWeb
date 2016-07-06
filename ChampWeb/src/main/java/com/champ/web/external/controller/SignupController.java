@@ -18,6 +18,7 @@ import com.champ.core.cache.PropertyMapCache;
 import com.champ.core.enums.Property;
 import com.champ.core.utility.CacheManager;
 import com.champ.gmail.api.response.GmailTokensResponse;
+import com.champ.gmail.api.response.UserInfoResponse;
 import com.champ.gmail.api.service.Helper;
 import com.champ.gmail.api.service.URLGeneratorService;
 import com.champ.services.IApiService;
@@ -65,12 +66,18 @@ public class SignupController {
 	@RequestMapping(value = "/signupCallback", produces = "application/json", method = RequestMethod.GET)
 	public String getTransactionsForUser(@RequestParam("code") String code, ModelMap map) throws Exception {
 		LOG.info("Request Recieved from Google post authentication {}", code);
+		
 		URI uri = urlGeneratorService.getTokenURL();
 		List<NameValuePair> urlParameters = urlGeneratorService.getTokenQueryParameters(code);
 		StringBuffer sb = helper.executePost(uri.toString(), urlParameters);
 		GmailTokensResponse tokenResponse = (GmailTokensResponse) helper.getObjectFromJsonString(sb,
 				GmailTokensResponse.class);
-		SignupResponse response = apiService.signup(tokenResponse);
+		
+		urlGeneratorService.getUserInfoURL(tokenResponse.getAccess_token());
+		sb = helper.executeGet(uri.toString());
+		UserInfoResponse userInfo = (UserInfoResponse) helper.getObjectFromJsonString(sb, UserInfoResponse.class);
+		
+		SignupResponse response = apiService.signup(tokenResponse, userInfo);
 		Gson gson = new Gson();
 		map.put("response", gson.toJson(response));
 		return "Signup/returnBack";
