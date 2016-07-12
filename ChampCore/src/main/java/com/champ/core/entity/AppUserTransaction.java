@@ -14,23 +14,6 @@ import javax.persistence.TemporalType;
 @Entity
 @Table(name = "app_user_transaction")
 public class AppUserTransaction extends BaseEntity {
-
-	public BankPaymentMode getBankPaymentMode() {
-		return bankPaymentMode;
-	}
-
-	public void setBankPaymentMode(BankPaymentMode bankPaymentMode) {
-		this.bankPaymentMode = bankPaymentMode;
-	}
-
-	public AppUser getUser() {
-		return user;
-	}
-
-	public void setUser(AppUser user) {
-		this.user = user;
-	}
-
 	/**
 	 * 
 	 */
@@ -121,6 +104,22 @@ public class AppUserTransaction extends BaseEntity {
 
 	public void setBank(Bank bank) {
 		this.bank = bank;
+	}
+
+	public BankPaymentMode getBankPaymentMode() {
+		return bankPaymentMode;
+	}
+
+	public void setBankPaymentMode(BankPaymentMode bankPaymentMode) {
+		this.bankPaymentMode = bankPaymentMode;
+	}
+
+	public AppUser getUser() {
+		return user;
+	}
+
+	public void setUser(AppUser user) {
+		this.user = user;
 	}
 
 }

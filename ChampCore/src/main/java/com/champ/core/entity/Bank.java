@@ -13,7 +13,7 @@ public class Bank extends BaseEntity {
 	 */
 	private static final long serialVersionUID = 5435753640219968110L;
 
-	@Column(name = "name", nullable = false)
+	@Column(name = "name", nullable = false, unique = true)
 	private String name;
 
 	@Column(name = "icon_url", nullable = true)

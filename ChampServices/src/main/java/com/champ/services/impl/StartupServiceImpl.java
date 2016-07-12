@@ -3,6 +3,7 @@ package com.champ.services.impl;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -13,19 +14,29 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.champ.core.cache.AppUserBankCache;
+import com.champ.core.cache.AppUserCache;
+import com.champ.core.cache.BankCache;
 import com.champ.core.cache.PaymentModeCache;
 import com.champ.core.cache.PropertyMapCache;
+import com.champ.core.dto.SearchQueryParserDto;
 import com.champ.core.entity.AppUser;
 import com.champ.core.entity.Bank;
 import com.champ.core.entity.BankPaymentMode;
+import com.champ.core.entity.Parser;
+import com.champ.core.entity.SearchQuery;
 import com.champ.core.enums.Property;
 import com.champ.core.utility.CacheManager;
 import com.champ.data.access.services.IPropertyDao;
+import com.champ.gmail.api.client.IGmailClientService;
 import com.champ.services.IAppUserBankService;
 import com.champ.services.IAppUserService;
 import com.champ.services.IBankPaymentModeService;
+import com.champ.services.IBankService;
 import com.champ.services.IStartupService;
+import com.champ.services.executors.TransactionExecutorService;
+import com.champ.services.executors.TransactionExecutorServiceWrapper;
 import com.champ.services.thread.CacheReloadThread;
+import com.champ.services.thread.UserBatchThread;
 
 @Service
 public class StartupServiceImpl implements IStartupService {
@@ -42,7 +53,20 @@ public class StartupServiceImpl implements IStartupService {
 	@Autowired
 	IAppUserBankService appUserBankService;
 
+	@Autowired
+	IGmailClientService gmailClientService;
+
+	@Autowired
+	IBankService bankService;
+
+	@Autowired
+	TransactionExecutorServiceWrapper transactionExecutorServiceWrapper;
+
 	private ScheduledExecutorService cacheReloadExecutor = Executors.newScheduledThreadPool(1);
+
+	private ExecutorService taskExecutor = Executors.newFixedThreadPool(1);
+
+	UserBatchThread userBatchThread = new UserBatchThread(transactionExecutorServiceWrapper, appUserService);
 
 	private static final Logger LOG = LoggerFactory.getLogger(StartupServiceImpl.class);
 
@@ -51,6 +75,9 @@ public class StartupServiceImpl implements IStartupService {
 		loadProperties();
 		loadPaymentModeCache();
 		loadAppUserBanks();
+		loadBankCache();
+		loadTransactionExecutor();
+		getUserMessages();
 		scheduleCacheReload();
 		LOG.info("Startup Service Completed");
 	}
@@ -88,11 +115,13 @@ public class StartupServiceImpl implements IStartupService {
 	}
 
 	public void loadAppUserBanks() {
-		LOG.info("Loading App User Banks Cache");
+		LOG.info("Loading App Users and User Banks Cache");
 		List<AppUser> users = appUserService.getAllUsers();
 		AppUserBankCache cache = new AppUserBankCache();
+		AppUserCache userCache = new AppUserCache();
 		if (users != null && users.size() > 0) {
 			for (AppUser user : users) {
+				userCache.addUser(user);
 				List<Bank> banks = appUserBankService.getBanksForUser(user.getEmail(), user.getToken());
 				if (banks != null) {
 					LOG.info("{} Banks found for user {}", banks.size(), user.getEmail());
@@ -103,7 +132,8 @@ public class StartupServiceImpl implements IStartupService {
 			}
 		}
 		CacheManager.getInstance().setCache(cache);
-		LOG.info("Loaded App User Banks Cache");
+		CacheManager.getInstance().setCache(userCache);
+		LOG.info("Loaded App Users and User Banks Cache");
 	}
 
 	private void scheduleCacheReload() {
@@ -130,4 +160,97 @@ public class StartupServiceImpl implements IStartupService {
 		LOG.info("Context Reload Completed");
 	}
 
+	public void getUserMessages() {
+		if (CacheManager.getInstance().getCache(PropertyMapCache.class)
+				.getPropertyBoolean(Property.ENABLE_MESSAGE_TASK)) {
+			LOG.info("Task Submitted for execution");
+			taskExecutor.submit(userBatchThread);
+		}
+	}
+
+	public void loadBankCache() {
+		LOG.info("Loading Banks Cache");
+		List<Bank> banks = bankService.getAllEnabledBanks();
+		BankCache cache = new BankCache();
+		if (banks != null && banks.size() > 0) {
+			for (Bank bank : banks) {
+				List<SearchQuery> searchQueries = bankService.getSearchQueryForBank(bank.getId());
+				if (searchQueries != null && searchQueries.size() > 0) {
+					for (SearchQuery query : searchQueries) {
+						Parser parser = bankService.getParserForSearchQuery(query.getId());
+						cache.addBank(bank, new SearchQueryParserDto(query, parser));
+					}
+				} else {
+					LOG.info("No Search Queries found for Bank {}", bank.getName());
+				}
+			}
+		} else {
+			LOG.info("Banks not found in system");
+		}
+		CacheManager.getInstance().setCache(cache);
+		LOG.info("Loaded Banks Cache");
+	}
+
+	public void loadTransactionExecutor() {
+		LOG.info("Loading Transaction Executor Service");
+		if (transactionExecutorServiceWrapper.getTransactionExecutorService() != null) {
+			if (transactionExecutorServiceWrapper.getTransactionExecutorService()
+					.getCoreThreadPoolSize() != CacheManager.getInstance().getCache(PropertyMapCache.class)
+							.getPropertyInteger(Property.TRANSACTION_EXECUTOR_CORE_THREAD_POOL)
+					|| transactionExecutorServiceWrapper.getTransactionExecutorService()
+							.getBlockingQueueSize() != CacheManager.getInstance().getCache(PropertyMapCache.class)
+									.getPropertyInteger(Property.TRANSACTION_EXECUTOR_BLOCKING_QUEUE_SIZE)
+					|| transactionExecutorServiceWrapper.getTransactionExecutorService()
+							.getMaxThreadPoolSize() != CacheManager.getInstance().getCache(PropertyMapCache.class)
+									.getPropertyInteger(Property.TRANSACTION_EXECUTOR_MAX_THREAD_POOL)
+					|| transactionExecutorServiceWrapper.getTransactionExecutorService()
+							.getKeepAliveTime() != CacheManager.getInstance().getCache(PropertyMapCache.class)
+									.getPropertyInteger(Property.TRANSACTION_EXECUTOR_KEEP_ALIVE_TIME)
+					|| transactionExecutorServiceWrapper.getTransactionExecutorService()
+							.getRejectionWaitingTime() != CacheManager.getInstance().getCache(PropertyMapCache.class)
+									.getPropertyInteger(Property.TRANSACTION_EXECUTOR_REJECTION_TIME)) {
+				LOG.info("Loading new Transaction Executor Service as there is change in configuration");
+				TransactionExecutorService transactionExecutorService = new TransactionExecutorService(
+						CacheManager.getInstance().getCache(PropertyMapCache.class)
+								.getPropertyInteger(Property.TRANSACTION_EXECUTOR_CORE_THREAD_POOL),
+						CacheManager.getInstance().getCache(PropertyMapCache.class)
+								.getPropertyInteger(Property.TRANSACTION_EXECUTOR_MAX_THREAD_POOL),
+						CacheManager.getInstance().getCache(PropertyMapCache.class)
+								.getPropertyInteger(Property.TRANSACTION_EXECUTOR_KEEP_ALIVE_TIME),
+						CacheManager.getInstance().getCache(PropertyMapCache.class)
+								.getPropertyInteger(Property.TRANSACTION_EXECUTOR_REJECTION_TIME),
+						CacheManager.getInstance().getCache(PropertyMapCache.class)
+								.getPropertyInteger(Property.TRANSACTION_EXECUTOR_BLOCKING_QUEUE_SIZE),
+						transactionExecutorServiceWrapper.getTransactionService(),
+						transactionExecutorServiceWrapper.getGmailClient(),
+						transactionExecutorServiceWrapper.getAppUserBankService(),
+						transactionExecutorServiceWrapper.getAppUserService());
+				transactionExecutorServiceWrapper.getTransactionExecutorService().shutDown();
+				transactionExecutorServiceWrapper.setTransactionExecutorService(transactionExecutorService);
+			} else {
+				LOG.info("Transaction Executor Service running with following configuration. Thread pool size : "
+						+ transactionExecutorServiceWrapper.getTransactionExecutorService().getCoreThreadPoolSize()
+						+ " and Blocking Queue Size : "
+						+ transactionExecutorServiceWrapper.getTransactionExecutorService().getBlockingQueueSize());
+			}
+		} else {
+			LOG.info("No Transaction Executor Service exists. Creating a new one....");
+			TransactionExecutorService transactionExecutorService = new TransactionExecutorService(
+					CacheManager.getInstance().getCache(PropertyMapCache.class)
+							.getPropertyInteger(Property.TRANSACTION_EXECUTOR_CORE_THREAD_POOL),
+					CacheManager.getInstance().getCache(PropertyMapCache.class)
+							.getPropertyInteger(Property.TRANSACTION_EXECUTOR_MAX_THREAD_POOL),
+					CacheManager.getInstance().getCache(PropertyMapCache.class)
+							.getPropertyInteger(Property.TRANSACTION_EXECUTOR_KEEP_ALIVE_TIME),
+					CacheManager.getInstance().getCache(PropertyMapCache.class)
+							.getPropertyInteger(Property.TRANSACTION_EXECUTOR_REJECTION_TIME),
+					CacheManager.getInstance().getCache(PropertyMapCache.class)
+							.getPropertyInteger(Property.TRANSACTION_EXECUTOR_BLOCKING_QUEUE_SIZE),
+					transactionExecutorServiceWrapper.getTransactionService(),
+					transactionExecutorServiceWrapper.getGmailClient(),
+					transactionExecutorServiceWrapper.getAppUserBankService(),
+					transactionExecutorServiceWrapper.getAppUserService());
+			transactionExecutorServiceWrapper.setTransactionExecutorService(transactionExecutorService);
+		}
+	}
 }

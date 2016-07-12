@@ -86,7 +86,7 @@ public class ApiServiceImpl implements IApiService {
 		GetUserBankResponse response = new GetUserBankResponse();
 		AppUserBankCache cache = CacheManager.getInstance().getCache(AppUserBankCache.class);
 		if (cache != null) {
-			List<Bank> banks = cache.getBanksForUser(request.getEmail(), request.getToken());
+			List<Bank> banks = cache.getBanksForUserByEmailAndToken(request.getEmail(), request.getToken());
 			if (banks != null && banks.size() > 0) {
 				List<UserBank> userBanks = converterService.getUserBankFromBanks(banks);
 				response.setUserBanks(userBanks);

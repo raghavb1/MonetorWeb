@@ -5,8 +5,8 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <script type="text/javascript">
-window.parent.postMessage("'"+${response}+"'","*");
-console.log(${response});
+<script>
+var message ="${response}";
 </script>
 <title>Return Back</title>
 </head>

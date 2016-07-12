@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.champ.core.entity.Bank;
+import com.champ.core.entity.Parser;
+import com.champ.core.entity.SearchQuery;
 import com.champ.data.access.services.IBankDao;
 import com.champ.services.IBankService;
 
@@ -40,6 +42,18 @@ public class BankServiceImpl implements IBankService {
 
 	public boolean checkBank(String name) {
 		return bankDao.checkBank(name);
+	}
+
+	public List<SearchQuery> getSearchQueryForBank(Long id) {
+		return bankDao.getSearchQueryForBank(id);
+	}
+
+	public Parser getParserForSearchQuery(Long id) {
+		return bankDao.getParserForSearchQuery(id);
+	}
+
+	public List<Bank> getAllEnabledBanks() {
+		return bankDao.getAllEnabledBanks();
 	}
 
 }

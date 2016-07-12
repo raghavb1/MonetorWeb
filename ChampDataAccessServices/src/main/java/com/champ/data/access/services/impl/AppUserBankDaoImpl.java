@@ -39,4 +39,8 @@ public class AppUserBankDaoImpl implements IAppUserBankDao {
 
 	}
 
+	public AppUserBank saveUserBank(AppUserBank appUserBank) {
+		return entityDao.saveOrUpdate(appUserBank);
+	}
+
 }

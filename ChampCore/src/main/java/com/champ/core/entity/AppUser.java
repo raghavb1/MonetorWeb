@@ -8,6 +8,9 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import com.champ.core.utility.DateUtils;
+import com.champ.core.utility.DateUtils.TimeUnit;
+
 @Entity
 @Table(name = "app_user")
 public class AppUser extends BaseEntity {
@@ -36,6 +39,10 @@ public class AppUser extends BaseEntity {
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "gmail_expiry_time", nullable = false)
 	private Date gmailExpiryTime;
+
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "last_synced_on", nullable = false)
+	private Date lastSyncedOn = DateUtils.addToDate(new Date(), TimeUnit.DAY, -60);
 
 	public Date getTokenExpiryTime() {
 		return tokenExpiryTime;
@@ -83,6 +90,46 @@ public class AppUser extends BaseEntity {
 
 	public void setRefreshToken(String refreshToken) {
 		this.refreshToken = refreshToken;
+	}
+
+	public Date getLastSyncedOn() {
+		return lastSyncedOn;
+	}
+
+	public void setLastSyncedOn(Date lastSyncedOn) {
+		this.lastSyncedOn = lastSyncedOn;
+	}
+
+	@Override
+	public String toString() {
+		return "AppUser [email=" + email + ", token=" + token + ", accessToken=" + accessToken + ", refreshToken="
+				+ refreshToken + ", tokenExpiryTime=" + tokenExpiryTime + ", gmailExpiryTime=" + gmailExpiryTime
+				+ ", lastSyncedOn=" + lastSyncedOn + "]";
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((email == null) ? 0 : email.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		AppUser other = (AppUser) obj;
+		if (email == null) {
+			if (other.email != null)
+				return false;
+		} else if (!email.equals(other.email))
+			return false;
+		return true;
 	}
 
 }
