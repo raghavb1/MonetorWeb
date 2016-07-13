@@ -20,7 +20,7 @@ public class Convertor {
 		Date startDate = df.parse(date);
 
 		transaction.setAmount(Double.parseDouble(m.group("amount").replace(",", "")));
-		transaction.setTransactionType(m.group("transactionType").trim());
+		transaction.setPaymentModeString(m.group("transactionType").trim());
 		transaction.setSubMerchant(m.group("merchant").trim());
 		transaction.setDate(startDate);
 		transaction.setBalance(Double.parseDouble(m.group("balance").replace(",", "")));

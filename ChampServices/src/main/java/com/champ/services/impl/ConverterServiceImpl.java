@@ -8,26 +8,36 @@ import java.util.List;
 
 import javax.transaction.Transactional;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.champ.base.response.UserBank;
 import com.champ.base.response.UserTransaction;
+import com.champ.core.cache.BankCache;
 import com.champ.core.cache.PropertyMapCache;
+import com.champ.core.cache.SubMerchantCache;
 import com.champ.core.entity.AppUser;
 import com.champ.core.entity.AppUserTransaction;
 import com.champ.core.entity.Bank;
+import com.champ.core.entity.BankPaymentMode;
+import com.champ.core.entity.SubMerchant;
 import com.champ.core.enums.Property;
 import com.champ.core.utility.CacheManager;
 import com.champ.core.utility.DateUtils;
 import com.champ.core.utility.DateUtils.TimeUnit;
+import com.champ.gmail.api.dto.TransactionDTO;
 import com.champ.gmail.api.response.GmailTokensResponse;
 import com.champ.gmail.api.response.UserInfoResponse;
 import com.champ.services.IConverterService;
+import com.champ.services.ISubMerchantService;
 
 @Service("converterService")
 public class ConverterServiceImpl implements IConverterService {
 
 	private SecureRandom secureRandom = new SecureRandom();
+
+	@Autowired
+	ISubMerchantService subMerchantService;
 
 	public AppUser getUserFromRequest(GmailTokensResponse request, UserInfoResponse userInfo, AppUser user) {
 		if (user == null) {
@@ -82,12 +92,14 @@ public class ConverterServiceImpl implements IConverterService {
 		for (AppUserTransaction transaction : transactions) {
 			UserTransaction userTransaction = new UserTransaction();
 			userTransaction.setAmount(transaction.getAmount());
+			userTransaction.setTransactionCode(transaction.getTransactionCode());
 			if (transaction.getBank() != null) {
 				userTransaction.setBankName(transaction.getBank().getName());
 			}
 			if (transaction.getSubMerchant() != null) {
 				if (transaction.getSubMerchant().getMerchant() != null) {
 					userTransaction.setMerchantName(transaction.getSubMerchant().getMerchant().getName());
+					userTransaction.setMerchantIconUrl(transaction.getSubMerchant().getMerchant().getImageUrl());
 					if (transaction.getSubMerchant().getMerchant().getCategory() != null) {
 						userTransaction.setCategory(transaction.getSubMerchant().getMerchant().getCategory().getName());
 					}
@@ -99,10 +111,35 @@ public class ConverterServiceImpl implements IConverterService {
 				userTransaction.setPaymentMode(transaction.getBankPaymentMode().getPaymentMode());
 			}
 			userTransaction.setTransactionDate(transaction.getTransactionDate());
-			userTransaction.setTransactionId(transaction.getTransactionId());
 			userTransactions.add(userTransaction);
 		}
 		return userTransactions;
+	}
+
+	public AppUserTransaction getTransactionFromDto(TransactionDTO dto, AppUser user, Bank bank) {
+		AppUserTransaction transaction = new AppUserTransaction();
+		transaction.setBank(bank);
+		transaction.setUser(user);
+		BankPaymentMode paymentMode = CacheManager.getInstance().getCache(BankCache.class)
+				.getPaymentModeByBankNameAndString(bank.getName(), dto.getPaymentModeString());
+		if (paymentMode == null) {
+			return null;
+		}
+		transaction.setBankPaymentMode(paymentMode);
+		SubMerchant subMerchant = CacheManager.getInstance().getCache(SubMerchantCache.class)
+				.getSubMerchantByCode(dto.getSubMerchant());
+		if (subMerchant == null) {
+			subMerchant = new SubMerchant();
+			subMerchant.setCode(dto.getSubMerchant());
+			subMerchant.setMerchant(null);
+			subMerchant = subMerchantService.saveOrUpdateSubMerchant(subMerchant);
+		}
+		transaction.setSubMerchant(subMerchant);
+		transaction.setAmount(dto.getAmount());
+		transaction.setPostTransactionBalance(dto.getBalance());
+		transaction.setTransactionCode(dto.getTransactionCode());
+		transaction.setTransactionDate(dto.getDate());
+		return transaction;
 	}
 
 }

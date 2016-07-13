@@ -1,6 +1,5 @@
 package com.champ.core.entity;
 
-import java.math.BigInteger;
 import java.util.Date;
 
 import javax.persistence.Column;
@@ -19,9 +18,6 @@ public class AppUserTransaction extends BaseEntity {
 	 */
 	private static final long serialVersionUID = -568981348390424206L;
 
-	@Column(name = "transaction_id")
-	private String transactionId;
-
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "transaction_date")
 	private Date transactionDate;
@@ -30,10 +26,10 @@ public class AppUserTransaction extends BaseEntity {
 	private SubMerchant subMerchant;
 
 	@Column(name = "amount")
-	private BigInteger amount;
+	private Double amount;
 
 	@Column(name = "post_transaction_balance")
-	private BigInteger postTransactionBalance;
+	private Double postTransactionBalance;
 
 	@Column(name = "transaction_code")
 	private String transactionCode;
@@ -49,14 +45,6 @@ public class AppUserTransaction extends BaseEntity {
 	@ManyToOne
 	@JoinColumn(name = "user_id", referencedColumnName = "id")
 	private AppUser user;
-
-	public String getTransactionId() {
-		return transactionId;
-	}
-
-	public void setTransactionId(String transactionId) {
-		this.transactionId = transactionId;
-	}
 
 	public Date getTransactionDate() {
 		return transactionDate;
@@ -74,19 +62,19 @@ public class AppUserTransaction extends BaseEntity {
 		this.subMerchant = subMerchant;
 	}
 
-	public BigInteger getAmount() {
+	public Double getAmount() {
 		return amount;
 	}
 
-	public void setAmount(BigInteger amount) {
+	public void setAmount(Double amount) {
 		this.amount = amount;
 	}
 
-	public BigInteger getPostTransactionBalance() {
+	public Double getPostTransactionBalance() {
 		return postTransactionBalance;
 	}
 
-	public void setPostTransactionBalance(BigInteger postTransactionBalance) {
+	public void setPostTransactionBalance(Double postTransactionBalance) {
 		this.postTransactionBalance = postTransactionBalance;
 	}
 

@@ -11,4 +11,6 @@ public interface IBankPaymentModeService {
 	public void saveOrUpdateBankPaymentMode(BankPaymentMode bankPaymentMode);
 
 	public BankPaymentMode findBankPaymentModeById(Long id);
+
+	public List<BankPaymentMode> findBankPaymentModesByBankId(Long id);
 }

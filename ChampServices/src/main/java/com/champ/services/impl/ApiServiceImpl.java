@@ -1,5 +1,6 @@
 package com.champ.services.impl;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -34,6 +35,7 @@ import com.champ.services.IApiService;
 import com.champ.services.IAppUserService;
 import com.champ.services.IAppUserTransactionService;
 import com.champ.services.IConverterService;
+import com.champ.services.executors.TransactionExecutorServiceWrapper;
 
 @Service("apiService")
 @Transactional
@@ -48,6 +50,9 @@ public class ApiServiceImpl implements IApiService {
 	@Autowired
 	IAppUserTransactionService appUserTransactionService;
 
+	@Autowired
+	TransactionExecutorServiceWrapper	transactionExecutorServiceWrapper;
+	
 	private static final Logger LOG = LoggerFactory.getLogger(ApiServiceImpl.class);
 
 	public SignupResponse signup(GmailTokensResponse request, UserInfoResponse userInfo) throws Exception {
@@ -58,6 +63,9 @@ public class ApiServiceImpl implements IApiService {
 		}
 		user = converterService.getUserFromRequest(request, userInfo,user);
 		user = appUserService.saveOrUpdateUser(user);
+		List<AppUser> users = new ArrayList<AppUser>();
+		users.add(user);
+		transactionExecutorServiceWrapper.getTransactionExecutorService().executeTask(users);
 		response.setEmail(user.getEmail());
 		response.setToken(user.getToken());
 		return response;

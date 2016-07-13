@@ -7,7 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.champ.core.cache.AppUserBankCache;
-import com.champ.core.cache.AppUserCache;
 import com.champ.core.cache.BankCache;
 import com.champ.core.dto.SearchQueryParserDto;
 import com.champ.core.entity.AppUser;
@@ -37,6 +36,7 @@ public class UserTransactionThread implements Runnable {
 			LOG.info("Thread to get data from gmail called");
 			if (this.users != null && this.users.size() > 0) {
 				List<Bank> banks = CacheManager.getInstance().getCache(BankCache.class).getAllBanks();
+				LOG.info("Banks found from Cache {}", banks);
 				for (AppUser user : this.users) {
 					if (banks != null && banks.size() > 0) {
 						for (Bank bank : banks) {
@@ -47,7 +47,6 @@ public class UserTransactionThread implements Runnable {
 					}
 					user.setLastSyncedOn(DateUtils.addToDate(new Date(), TimeUnit.SECONDS, -10));
 					appUserService.saveOrUpdateUser(user);
-					CacheManager.getInstance().getCache(AppUserCache.class).updateUser(user);
 				}
 			} else {
 				LOG.info("Users not found to get transactions");
@@ -79,7 +78,7 @@ public class UserTransactionThread implements Runnable {
 						CacheManager.getInstance().getCache(AppUserBankCache.class).updateBankToUser(user, bank);
 						LOG.info("User Transactions Saved");
 					}
-					transactionService.saveUserTransactions(transactions);
+					transactionService.saveUserTransactions(transactions, user, bank);
 				} else {
 					LOG.info("Transactions not found for user {} and bank {}", user.getEmail(), bank.getName());
 				}

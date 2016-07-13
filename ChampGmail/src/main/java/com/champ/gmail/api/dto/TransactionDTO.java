@@ -6,9 +6,10 @@ public class TransactionDTO {
 
 	private Double amount;
 	private String subMerchant;
-	private String transactionType;
+	private String paymentModeString;
 	private Double balance;
 	private Date date;
+	private String transactionCode;
 
 	public String getSubMerchant() {
 		return subMerchant;
@@ -18,12 +19,12 @@ public class TransactionDTO {
 		this.subMerchant = subMerchant;
 	}
 
-	public String getTransactionType() {
-		return transactionType;
+	public String getPaymentModeString() {
+		return paymentModeString;
 	}
 
-	public void setTransactionType(String transactionType) {
-		this.transactionType = transactionType;
+	public void setPaymentModeString(String paymentModeString) {
+		this.paymentModeString = paymentModeString;
 	}
 
 	public Date getDate() {
@@ -50,10 +51,19 @@ public class TransactionDTO {
 		this.balance = balance;
 	}
 
+	public String getTransactionCode() {
+		return transactionCode;
+	}
+
+	public void setTransactionCode(String transactionCode) {
+		this.transactionCode = transactionCode;
+	}
+
 	@Override
 	public String toString() {
 		return "TransactionDTO [amount=" + amount + ", subMerchant=" + subMerchant + ", transactionType="
-				+ transactionType + ", balance=" + balance + ", date=" + date + "]";
+				+ paymentModeString + ", balance=" + balance + ", date=" + date + ", transactionCode=" + transactionCode
+				+ "]";
 	}
 
 }

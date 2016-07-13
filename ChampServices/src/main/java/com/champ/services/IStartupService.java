@@ -15,4 +15,6 @@ public interface IStartupService {
 	public void reloadContext();
 	
 	public void loadTransactionExecutor();
+	
+	public void loadSubmerchantsCache();
 }

@@ -30,8 +30,8 @@ public class SubMerchantDaoImpl implements ISubMerchantDao {
 		return entityDao.findById(SubMerchant.class, id);
 	}
 
-	public void saveOrUpdateSubMerchant(SubMerchant subMerchant) {
-		entityDao.saveOrUpdate(subMerchant);
+	public SubMerchant saveOrUpdateSubMerchant(SubMerchant subMerchant) {
+		return entityDao.saveOrUpdate(subMerchant);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -45,6 +45,10 @@ public class SubMerchantDaoImpl implements ISubMerchantDao {
 		} else {
 			return true;
 		}
+	}
+
+	public List<SubMerchant> getAllSubMerchants() {
+		return entityDao.findAll(SubMerchant.class);
 	}
 
 }

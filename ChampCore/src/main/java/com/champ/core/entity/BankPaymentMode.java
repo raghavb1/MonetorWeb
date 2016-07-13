@@ -50,4 +50,29 @@ public class BankPaymentMode extends BaseEntity {
 		this.paymentMode = paymentMode;
 	}
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + ((extractedString == null) ? 0 : extractedString.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		BankPaymentMode other = (BankPaymentMode) obj;
+		if (extractedString == null) {
+			if (other.extractedString != null)
+				return false;
+		} else if (!extractedString.equals(other.extractedString))
+			return false;
+		return true;
+	}
+
 }

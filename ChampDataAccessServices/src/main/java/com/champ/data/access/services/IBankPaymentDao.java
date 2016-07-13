@@ -12,4 +12,5 @@ public interface IBankPaymentDao {
 
 	public BankPaymentMode findBankPaymentModeById(Long id);
 
+	public List<BankPaymentMode> findBankPaymentModesByBankId(Long id);
 }

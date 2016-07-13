@@ -1,6 +1,5 @@
 package com.champ.base.response;
 
-import java.math.BigInteger;
 import java.util.Date;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
@@ -8,20 +7,37 @@ import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class UserTransaction {
 
-	private String transactionId;
+	private String transactionCode;
 	private Date transactionDate;
 	private String merchantName;
-	private BigInteger amount;
+	private Double amount;
 	private String bankName;
 	private String paymentMode;
 	private String category;
+	private String merchantIconUrl;
 
-	public String getTransactionId() {
-		return transactionId;
+	public String getMerchantIconUrl() {
+		return merchantIconUrl;
 	}
 
-	public void setTransactionId(String transactionId) {
-		this.transactionId = transactionId;
+	public void setMerchantIconUrl(String merchantIconUrl) {
+		this.merchantIconUrl = merchantIconUrl;
+	}
+
+	public String getTransactionCode() {
+		return transactionCode;
+	}
+
+	public void setTransactionCode(String transactionCode) {
+		this.transactionCode = transactionCode;
+	}
+
+	public Double getAmount() {
+		return amount;
+	}
+
+	public void setAmount(Double amount) {
+		this.amount = amount;
 	}
 
 	public Date getTransactionDate() {
@@ -38,14 +54,6 @@ public class UserTransaction {
 
 	public void setMerchantName(String merchantName) {
 		this.merchantName = merchantName;
-	}
-
-	public BigInteger getAmount() {
-		return amount;
-	}
-
-	public void setAmount(BigInteger amount) {
-		this.amount = amount;
 	}
 
 	public String getBankName() {

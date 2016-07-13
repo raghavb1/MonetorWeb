@@ -30,4 +30,8 @@ public class BankPaymentModeServiceImpl implements IBankPaymentModeService {
 		return bankPaymentDao.findBankPaymentModeById(id);
 	}
 
+	public List<BankPaymentMode> findBankPaymentModesByBankId(Long id) {
+		return bankPaymentDao.findBankPaymentModesByBankId(id);
+	}
+
 }

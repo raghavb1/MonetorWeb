@@ -12,7 +12,9 @@ public interface ISubMerchantService {
 
 	public SubMerchant findSubMerchantById(Long id);
 	
-	public void saveOrUpdateSubMerchant(SubMerchant subMerchant);
+	public SubMerchant saveOrUpdateSubMerchant(SubMerchant subMerchant);
 	
 	public boolean checkSubMerchant(String code);
+	
+	public List<SubMerchant> getAllSubMerchants();
 }

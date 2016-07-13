@@ -42,12 +42,16 @@ public class SubMerchantServiceImpl implements ISubMerchantService {
 		return subMerchantDao.getSubMerchantById(id);
 	}
 
-	public void saveOrUpdateSubMerchant(SubMerchant subMerchant) {
-		subMerchantDao.saveOrUpdateSubMerchant(subMerchant);
+	public SubMerchant saveOrUpdateSubMerchant(SubMerchant subMerchant) {
+		return subMerchantDao.saveOrUpdateSubMerchant(subMerchant);
 	}
 
 	public boolean checkSubMerchant(String code) {
 		return subMerchantDao.checkSubMerchant(code);
+	}
+
+	public List<SubMerchant> getAllSubMerchants() {
+		return subMerchantDao.getAllSubMerchants();
 	}
 
 }

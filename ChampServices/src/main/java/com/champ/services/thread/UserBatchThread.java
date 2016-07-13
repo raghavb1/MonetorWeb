@@ -13,7 +13,7 @@ import com.champ.core.utility.CacheManager;
 import com.champ.services.IAppUserService;
 import com.champ.services.executors.TransactionExecutorServiceWrapper;
 
-public class UserBatchThread extends Thread {
+public class UserBatchThread implements Runnable {
 
 	private IAppUserService appUserService;
 	private TransactionExecutorServiceWrapper transactionExecutorServiceWrapper;
@@ -30,15 +30,16 @@ public class UserBatchThread extends Thread {
 			for (AppUser user : users) {
 				userBatch.add(user);
 				if (userBatch.size() == batchSize) {
-					LOG.info("Creating a thread with complete batch of {} users", batchSize);
 					transactionExecutorServiceWrapper.getTransactionExecutorService().executeTask(userBatch);
-					userBatch.clear();
+					userBatch = new ArrayList<AppUser>();
 				}
 			}
 			if (userBatch.size() > 0) {
 				LOG.info("Creating a thread with {} users", userBatch.size());
 				transactionExecutorServiceWrapper.getTransactionExecutorService().executeTask(userBatch);
 			}
+		} else {
+			LOG.info("No Users found to fetch messages");
 		}
 	}
 

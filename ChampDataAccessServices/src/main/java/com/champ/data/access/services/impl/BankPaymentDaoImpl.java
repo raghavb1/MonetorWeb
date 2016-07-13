@@ -2,6 +2,8 @@ package com.champ.data.access.services.impl;
 
 import java.util.List;
 
+import javax.persistence.Query;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,6 +27,14 @@ public class BankPaymentDaoImpl implements IBankPaymentDao {
 
 	public BankPaymentMode findBankPaymentModeById(Long id) {
 		return entityDao.findById(BankPaymentMode.class, id);
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<BankPaymentMode> findBankPaymentModesByBankId(Long id) {
+		Query query = entityDao.getEntityManager().createQuery(
+				"Select mode from BankPaymentMode mode left join fetch mode.bank bank where bank.id =:id");
+		query.setParameter("id", id);
+		return (List<BankPaymentMode>) query.getResultList();
 	}
 
 }
