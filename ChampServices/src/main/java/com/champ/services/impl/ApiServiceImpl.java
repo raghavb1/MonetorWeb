@@ -29,13 +29,16 @@ import com.champ.core.exception.MonetorServiceException;
 import com.champ.core.utility.CacheManager;
 import com.champ.core.utility.DateUtils;
 import com.champ.core.utility.DateUtils.TimeUnit;
+import com.champ.gmail.api.client.IGmailClientService;
 import com.champ.gmail.api.response.GmailTokensResponse;
 import com.champ.gmail.api.response.UserInfoResponse;
 import com.champ.services.IApiService;
+import com.champ.services.IAppUserBankService;
 import com.champ.services.IAppUserService;
 import com.champ.services.IAppUserTransactionService;
 import com.champ.services.IConverterService;
-import com.champ.services.executors.TransactionExecutorServiceWrapper;
+import com.champ.services.ITransactionService;
+import com.champ.services.thread.UserTransactionThread;
 
 @Service("apiService")
 @Transactional
@@ -51,7 +54,13 @@ public class ApiServiceImpl implements IApiService {
 	IAppUserTransactionService appUserTransactionService;
 
 	@Autowired
-	TransactionExecutorServiceWrapper transactionExecutorServiceWrapper;
+	private ITransactionService transactionService;
+
+	@Autowired
+	private IGmailClientService gmailClient;
+
+	@Autowired
+	private IAppUserBankService appUserBankService;
 
 	private static final Logger LOG = LoggerFactory.getLogger(ApiServiceImpl.class);
 
@@ -70,7 +79,10 @@ public class ApiServiceImpl implements IApiService {
 		user = appUserService.saveOrUpdateUser(user);
 		List<AppUser> users = new ArrayList<AppUser>();
 		users.add(user);
-		transactionExecutorServiceWrapper.getTransactionExecutorService().executeTask(users);
+		Thread pullMessageThread = new Thread(
+				new UserTransactionThread(users, gmailClient, transactionService, appUserBankService, appUserService));
+		pullMessageThread.start();
+		LOG.info("Thread Started to get user messages");
 		response.setEmail(user.getEmail());
 		response.setToken(user.getToken());
 		return response;

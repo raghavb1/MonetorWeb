@@ -38,7 +38,7 @@
 							<tbody>
 								<c:forEach var="parser" items="${parsers}">
 									<tr id="${parser.id}">
-									<td>${parser.template}</td>
+									<td><c:out value="${parser.template}" /></td>
 										<td>${parser.searchQuery.searchQuery}</td>
 										<td>${parser.bank.name}</td>
 									<td><a
