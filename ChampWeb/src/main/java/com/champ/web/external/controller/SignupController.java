@@ -72,7 +72,7 @@ public class SignupController {
 		GmailTokensResponse tokenResponse = (GmailTokensResponse) helper.getObjectFromJsonString(sb,
 				GmailTokensResponse.class);
 
-		urlGeneratorService.getUserInfoURL(tokenResponse.getAccess_token());
+		uri = urlGeneratorService.getUserInfoURL(tokenResponse.getAccess_token());
 		sb = helper.executeGet(uri.toString());
 		UserInfoResponse userInfo = (UserInfoResponse) helper.getObjectFromJsonString(sb, UserInfoResponse.class);
 
