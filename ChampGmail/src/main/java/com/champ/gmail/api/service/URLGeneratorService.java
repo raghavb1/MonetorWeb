@@ -24,7 +24,7 @@ public class URLGeneratorService {
 		String REDIRECT_URI = CacheManager.getInstance().getCache(PropertyMapCache.class)
 				.getPropertyString(Property.GMAIL_REDIRECT_URL);
 		URI uri = new URIBuilder().setScheme("https").setHost("accounts.google.com").setPath("/o/oauth2/v2/auth")
-				.setParameter("scope", "https://www.googleapis.com/auth/gmail.readonly,https://www.googleapis.com/auth/userinfo.email,https://www.googleapis.com/auth/userinfo.profile")
+				.setParameter("scope", "https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile")
 				.setParameter("redirect_uri", REDIRECT_URI).setParameter("response_type", "code")
 				.setParameter("client_id", CLIENT_ID).setParameter("access_type", "offline").build();
 
