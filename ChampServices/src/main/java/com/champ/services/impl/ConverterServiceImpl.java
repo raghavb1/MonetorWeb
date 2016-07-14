@@ -43,6 +43,9 @@ public class ConverterServiceImpl implements IConverterService {
 		if (user == null) {
 			user = new AppUser();
 		}
+		if (userInfo.getEmail() == null || userInfo.getEmail().equals("")) {
+			return null;
+		}
 		user.setEmail(userInfo.getEmail());
 		user.setToken(generateTokenForUser());
 		user.setAccessToken(request.getAccessToken());

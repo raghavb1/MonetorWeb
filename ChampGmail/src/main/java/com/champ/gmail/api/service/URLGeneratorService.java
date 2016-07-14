@@ -23,10 +23,12 @@ public class URLGeneratorService {
 	public URI getAuthURL() throws URISyntaxException {
 		String REDIRECT_URI = CacheManager.getInstance().getCache(PropertyMapCache.class)
 				.getPropertyString(Property.GMAIL_REDIRECT_URL);
+		String scope = CacheManager.getInstance().getCache(PropertyMapCache.class)
+				.getPropertyString(Property.GMAIL_SCOPE);
 		URI uri = new URIBuilder().setScheme("https").setHost("accounts.google.com").setPath("/o/oauth2/v2/auth")
-				.setParameter("scope", "https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile")
-				.setParameter("redirect_uri", REDIRECT_URI).setParameter("response_type", "code")
-				.setParameter("client_id", CLIENT_ID).setParameter("access_type", "offline").build();
+				.setParameter("scope", scope).setParameter("redirect_uri", REDIRECT_URI)
+				.setParameter("response_type", "code").setParameter("client_id", CLIENT_ID)
+				.setParameter("access_type", "offline").build();
 
 		return uri;
 	}
@@ -36,15 +38,11 @@ public class URLGeneratorService {
 
 		return uri;
 	}
-	
-	public URI getUserInfoURL(String accessToken) throws URISyntaxException{
-		URI uri = new URIBuilder()
-				.setScheme("https")
-				.setHost("www.googleapis.com")
-				.setPath("/oauth2/v1/userinfo")
-				.setParameter("access_token", accessToken) 
-				.build();
-		
+
+	public URI getUserInfoURL(String accessToken) throws URISyntaxException {
+		URI uri = new URIBuilder().setScheme("https").setHost("www.googleapis.com").setPath("/oauth2/v1/userinfo")
+				.setParameter("access_token", accessToken).build();
+
 		return uri;
 	}
 

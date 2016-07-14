@@ -51,8 +51,8 @@ public class ApiServiceImpl implements IApiService {
 	IAppUserTransactionService appUserTransactionService;
 
 	@Autowired
-	TransactionExecutorServiceWrapper	transactionExecutorServiceWrapper;
-	
+	TransactionExecutorServiceWrapper transactionExecutorServiceWrapper;
+
 	private static final Logger LOG = LoggerFactory.getLogger(ApiServiceImpl.class);
 
 	public SignupResponse signup(GmailTokensResponse request, UserInfoResponse userInfo) throws Exception {
@@ -61,7 +61,12 @@ public class ApiServiceImpl implements IApiService {
 		if (!appUserService.checkUser(userInfo.getEmail())) {
 			user = appUserService.getUserByEmail(userInfo.getEmail());
 		}
-		user = converterService.getUserFromRequest(request, userInfo,user);
+		user = converterService.getUserFromRequest(request, userInfo, user);
+		if (user == null) {
+			response.setCode(ApiResponseCodes.GMAIL_EMAIL_NOT_FOUND.getCode());
+			response.setMessage(ApiResponseCodes.GMAIL_EMAIL_NOT_FOUND.getMessage());
+			return response;
+		}
 		user = appUserService.saveOrUpdateUser(user);
 		List<AppUser> users = new ArrayList<AppUser>();
 		users.add(user);
