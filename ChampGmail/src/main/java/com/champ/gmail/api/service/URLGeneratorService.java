@@ -28,7 +28,7 @@ public class URLGeneratorService {
 		URI uri = new URIBuilder().setScheme("https").setHost("accounts.google.com").setPath("/o/oauth2/v2/auth")
 				.setParameter("scope", scope).setParameter("redirect_uri", REDIRECT_URI)
 				.setParameter("response_type", "code").setParameter("client_id", CLIENT_ID)
-				.setParameter("access_type", "offline").setParameter("approval_prompt", "force").build();
+				.setParameter("access_type", "offline").setParameter("prompt", "consent").build();
 
 		return uri;
 	}
