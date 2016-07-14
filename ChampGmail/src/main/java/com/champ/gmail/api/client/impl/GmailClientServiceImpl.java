@@ -104,9 +104,11 @@ public class GmailClientServiceImpl implements IGmailClientService {
 		List<TransactionDTO> transactionDto = new ArrayList<TransactionDTO>();
 		String accessToken = refreshAccessToken(refreshToken).getAccessToken();
 		MessageListResponse list = getMessageList(email, searchQuery, accessToken);
-		for (MessageListResponse.Message message : list.getMessages()) {
-			MessageResponse messageResponse = getMessage(email, message.getId(), accessToken);
-			transactionDto.add(getTransactionDetailsFromEmail(messageResponse, parser));
+		if (list != null && list.getMessages() != null && list.getMessages().size() > 0) {
+			for (MessageListResponse.Message message : list.getMessages()) {
+				MessageResponse messageResponse = getMessage(email, message.getId(), accessToken);
+				transactionDto.add(getTransactionDetailsFromEmail(messageResponse, parser));
+			}
 		}
 		return transactionDto;
 	}
