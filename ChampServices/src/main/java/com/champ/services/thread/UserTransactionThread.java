@@ -38,15 +38,19 @@ public class UserTransactionThread implements Runnable {
 				List<Bank> banks = CacheManager.getInstance().getCache(BankCache.class).getAllBanks();
 				LOG.info("Banks found from Cache {}", banks);
 				for (AppUser user : this.users) {
-					if (banks != null && banks.size() > 0) {
-						for (Bank bank : banks) {
-							getAndSaveUserTransactions(user, bank);
+					try {
+						if (banks != null && banks.size() > 0) {
+							for (Bank bank : banks) {
+								getAndSaveUserTransactions(user, bank);
+							}
+						} else {
+							LOG.info("Banks not found for user {}", user.getEmail());
 						}
-					} else {
-						LOG.info("Banks not found for user {}", user.getEmail());
+						user.setLastSyncedOn(DateUtils.addToDate(new Date(), TimeUnit.SECONDS, -10));
+						appUserService.saveOrUpdateUser(user);
+					} catch (Exception e) {
+						LOG.error("Error while getting transactions for user {}", user.getEmail(), e);
 					}
-					user.setLastSyncedOn(DateUtils.addToDate(new Date(), TimeUnit.SECONDS, -10));
-					appUserService.saveOrUpdateUser(user);
 				}
 			} else {
 				LOG.info("Users not found to get transactions");

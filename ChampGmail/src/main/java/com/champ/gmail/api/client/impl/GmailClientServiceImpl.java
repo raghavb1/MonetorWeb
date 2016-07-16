@@ -13,6 +13,8 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpGet;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -37,6 +39,8 @@ public class GmailClientServiceImpl implements IGmailClientService {
 
 	@Autowired
 	Convertor convertor;
+
+	private static final Logger LOG = LoggerFactory.getLogger(GmailClientServiceImpl.class);
 
 	public String getAuthURL() throws URISyntaxException {
 		return urlGenerator.getAuthURL().toString();
@@ -91,6 +95,7 @@ public class GmailClientServiceImpl implements IGmailClientService {
 			input = messageResponse.getPayload().getBody().getData();
 		}
 		input = base64UrlDecode(input);
+		LOG.info("Input received from gmail {} and parser pattern {}", input, pattern);
 		Pattern r = Pattern.compile(pattern);
 		Matcher m = r.matcher(input);
 		if (m.find()) {
@@ -107,7 +112,13 @@ public class GmailClientServiceImpl implements IGmailClientService {
 		if (list != null && list.getMessages() != null && list.getMessages().size() > 0) {
 			for (MessageListResponse.Message message : list.getMessages()) {
 				MessageResponse messageResponse = getMessage(email, message.getId(), accessToken);
-				transactionDto.add(getTransactionDetailsFromEmail(messageResponse, parser));
+				TransactionDTO dto = getTransactionDetailsFromEmail(messageResponse, parser);
+				if (dto != null) {
+					transactionDto.add(dto);
+				} else {
+					LOG.info("Transaction DTO found null");
+				}
+
 			}
 		}
 		return transactionDto;

@@ -33,12 +33,19 @@ public class TransactionServiceImpl implements ITransactionService {
 		if (transactions != null && transactions.size() > 0) {
 			LOG.info("{} transactions found for user {}", transactions.size(), user.getEmail());
 			for (TransactionDTO dto : transactions) {
-				AppUserTransaction transaction = converterService.getTransactionFromDto(dto, user, bank);
-				if (transaction != null) {
-					transactionServiceDao.saveUserTransaction(transaction);
-				} else {
-					LOG.info("Payment mode not found for string {} and bank {}", dto.getPaymentModeString(),
-							bank.getName());
+				try {
+					AppUserTransaction transaction = null;
+					if (dto != null) {
+						transaction = converterService.getTransactionFromDto(dto, user, bank);
+					}
+					if (transaction != null) {
+						transactionServiceDao.saveUserTransaction(transaction);
+					} else {
+						LOG.info("Payment mode not found or dto received null for string {} and bank {}",
+								dto.getPaymentModeString(), bank.getName());
+					}
+				} catch (Exception e) {
+					LOG.error("Exception while saving transaction", e);
 				}
 			}
 		}
