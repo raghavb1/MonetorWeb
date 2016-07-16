@@ -3,7 +3,11 @@ package com.champ.data.access.services.impl;
 import java.util.List;
 
 import javax.persistence.Query;
+import javax.transaction.Transactional;
+import javax.transaction.Transactional.TxType;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,8 +21,16 @@ public class TransactionServiceDaoImpl implements ITransactionServiceDao {
 	@Autowired
 	IEntityDao entityDao;
 
+	private static final Logger LOG = LoggerFactory.getLogger(TransactionServiceDaoImpl.class);
+
+	@Transactional(value = TxType.REQUIRES_NEW)
 	public AppUserTransaction saveUserTransaction(AppUserTransaction transaction) {
-		return entityDao.saveOrUpdate(transaction);
+		try {
+			return entityDao.saveOrUpdate(transaction);
+		} catch (Exception e) {
+			LOG.error("Failed to save transaction for user {}. Duplicate record found", transaction.getUser().getEmail());
+			return null;
+		}
 	}
 
 	@SuppressWarnings("unchecked")

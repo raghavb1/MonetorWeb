@@ -39,7 +39,7 @@ public class AppUserTransaction extends BaseEntity {
 	private Bank bank;
 
 	@ManyToOne
-	@JoinColumn(name = "payment_mode_id", referencedColumnName = "id")
+	@JoinColumn(name = "payment_mode_id", referencedColumnName = "id", nullable = true)
 	private BankPaymentMode bankPaymentMode;
 
 	@ManyToOne

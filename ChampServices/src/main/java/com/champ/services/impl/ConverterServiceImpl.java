@@ -123,17 +123,11 @@ public class ConverterServiceImpl implements IConverterService {
 		AppUserTransaction transaction = new AppUserTransaction();
 		transaction.setBank(bank);
 		transaction.setUser(user);
-		if(CacheManager.getInstance().getCache(BankCache.class) != null){
-			System.out.println("Error other point");
-		}else{
-			System.out.println("Cache found null");
-		}
 		BankPaymentMode paymentMode = CacheManager.getInstance().getCache(BankCache.class)
 				.getPaymentModeByBankNameAndString(bank.getName(), dto.getPaymentModeString());
-		if (paymentMode == null) {
-			return null;
+		if (paymentMode != null) {
+			transaction.setBankPaymentMode(paymentMode);
 		}
-		transaction.setBankPaymentMode(paymentMode);
 		SubMerchant subMerchant = CacheManager.getInstance().getCache(SubMerchantCache.class)
 				.getSubMerchantByCode(dto.getSubMerchant());
 		if (subMerchant == null) {

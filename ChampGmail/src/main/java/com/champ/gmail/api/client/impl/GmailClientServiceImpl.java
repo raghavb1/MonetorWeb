@@ -94,8 +94,7 @@ public class GmailClientServiceImpl implements IGmailClientService {
 		} else if (messageResponse.getPayload().getBody() != null) {
 			input = messageResponse.getPayload().getBody().getData();
 		}
-		input = base64UrlDecode(input).replaceAll("\n ", " ");
-		LOG.info("Input received from gmail {} and parser pattern {}", input, pattern);
+		input = base64UrlDecode(input);
 		Pattern r = Pattern.compile(pattern);
 		Matcher m = r.matcher(input);
 		if (m.find()) {
@@ -116,7 +115,7 @@ public class GmailClientServiceImpl implements IGmailClientService {
 				if (dto != null) {
 					transactionDto.add(dto);
 				} else {
-					LOG.info("Transaction DTO found null");
+					LOG.info("Transaction DTO found null for user {}", email);
 				}
 
 			}

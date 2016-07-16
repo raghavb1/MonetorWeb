@@ -41,11 +41,12 @@ public class TransactionServiceImpl implements ITransactionService {
 					if (transaction != null) {
 						transactionServiceDao.saveUserTransaction(transaction);
 					} else {
-						LOG.info("Payment mode not found or dto received null for string {} and bank {}",
-								dto.getPaymentModeString(), bank.getName());
+						LOG.info("DTO received null for string {} and bank {}", dto.getPaymentModeString(),
+								bank.getName());
 					}
 				} catch (Exception e) {
-					LOG.error("Exception while saving transaction", e);
+					LOG.error("Exception while saving transaction for user {}. Exception {}", user.getEmail(),
+							e.getMessage());
 				}
 			}
 		}

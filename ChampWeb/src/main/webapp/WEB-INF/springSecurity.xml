@@ -26,10 +26,10 @@
 			username-parameter="email" password-parameter="password" />
 		<logout delete-cookies="JSESSIONID" logout-success-url="/logout" />
 		<access-denied-handler error-page="/error" />
-		<session-management>
+		<!-- <session-management>
 			<concurrency-control max-sessions="1"
 				error-if-maximum-exceeded="true" />
-		</session-management>
+		</session-management> -->
 	</http>
 	<authentication-manager>
 		<authentication-provider user-service-ref="customAuthenticationService">

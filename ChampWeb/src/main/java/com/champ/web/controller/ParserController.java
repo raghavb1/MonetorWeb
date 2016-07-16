@@ -45,6 +45,7 @@ public class ParserController {
 		if (parser.getId() != null) {
 			Parser persistedParser = parserService.getParserById(parser.getId());
 			persistedParser.setSearchQuery(parser.getSearchQuery());
+			persistedParser.setTemplate(parser.getTemplate());
 			persistedParser.setBank(parser.getBank());
 			parserService.saveOrUpdateParser(persistedParser);
 		} else {
