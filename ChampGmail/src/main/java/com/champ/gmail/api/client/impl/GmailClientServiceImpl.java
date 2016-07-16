@@ -94,7 +94,7 @@ public class GmailClientServiceImpl implements IGmailClientService {
 		} else if (messageResponse.getPayload().getBody() != null) {
 			input = messageResponse.getPayload().getBody().getData();
 		}
-		input = base64UrlDecode(input);
+		input = base64UrlDecode(input).replaceAll("\n ", " ");
 		LOG.info("Input received from gmail {} and parser pattern {}", input, pattern);
 		Pattern r = Pattern.compile(pattern);
 		Matcher m = r.matcher(input);
