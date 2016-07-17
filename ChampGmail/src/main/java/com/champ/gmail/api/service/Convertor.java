@@ -16,7 +16,7 @@ public class Convertor {
 	public TransactionDTO getTransactionDTOFromMessage(Matcher m) throws ParseException {
 		TransactionDTO transaction = new TransactionDTO();
 		String date = m.group("date");
-		DateFormat df = new SimpleDateFormat("dd-mm-yyyy HH:mm:ss");
+		DateFormat df = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
 		Date startDate = df.parse(date);
 
 		transaction.setAmount(Double.parseDouble(m.group("amount").replace(",", "")));
