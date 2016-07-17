@@ -76,7 +76,7 @@ public class UserTransactionThread implements Runnable {
 				if (transactions != null && transactions.size() > 0) {
 					List<Bank> banks = CacheManager.getInstance().getCache(AppUserBankCache.class)
 							.getBanksForUserByEmail(user.getEmail());
-					if (!banks.contains(bank)) {
+					if (banks == null || !banks.contains(bank)) {
 						AppUserBank appUserBank = new AppUserBank();
 						appUserBank.setUser(user);
 						appUserBank.setBank(bank);
