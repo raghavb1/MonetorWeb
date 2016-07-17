@@ -51,4 +51,17 @@ public class SubMerchantDaoImpl implements ISubMerchantDao {
 		return entityDao.findAll(SubMerchant.class);
 	}
 
+	@SuppressWarnings("unchecked")
+	public SubMerchant findSubMerchantByCode(String code) {
+		Query query = entityDao.getEntityManager()
+				.createQuery("Select submerchant from SubMerchant submerchant where submerchant.code = :code");
+		query.setParameter("code", code);
+		List<SubMerchant> codes = (List<SubMerchant>) query.getResultList();
+		if (codes.size() > 0) {
+			return codes.get(0);
+		} else {
+			return null;
+		}
+	}
+
 }

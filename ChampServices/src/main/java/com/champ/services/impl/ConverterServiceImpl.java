@@ -15,7 +15,6 @@ import com.champ.base.response.UserBank;
 import com.champ.base.response.UserTransaction;
 import com.champ.core.cache.BankCache;
 import com.champ.core.cache.PropertyMapCache;
-import com.champ.core.cache.SubMerchantCache;
 import com.champ.core.entity.AppUser;
 import com.champ.core.entity.AppUserTransaction;
 import com.champ.core.entity.Bank;
@@ -128,8 +127,7 @@ public class ConverterServiceImpl implements IConverterService {
 		if (paymentMode != null) {
 			transaction.setBankPaymentMode(paymentMode);
 		}
-		SubMerchant subMerchant = CacheManager.getInstance().getCache(SubMerchantCache.class)
-				.getSubMerchantByCode(dto.getSubMerchant());
+		SubMerchant subMerchant = subMerchantService.findSubMerchantByCode(dto.getSubMerchant());
 		if (subMerchant == null) {
 			subMerchant = new SubMerchant();
 			subMerchant.setCode(dto.getSubMerchant());

@@ -17,4 +17,6 @@ public interface ISubMerchantDao {
 	public boolean checkSubMerchant(String code);
 	
 	public List<SubMerchant> getAllSubMerchants();
+	
+	public SubMerchant findSubMerchantByCode(String code);
 }

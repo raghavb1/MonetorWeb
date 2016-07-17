@@ -13,4 +13,6 @@ public interface IBankPaymentModeService {
 	public BankPaymentMode findBankPaymentModeById(Long id);
 
 	public List<BankPaymentMode> findBankPaymentModesByBankId(Long id);
+
+	public BankPaymentMode findPaymentModeByExtractedString(Long id, String extractedString);
 }

@@ -9,9 +9,12 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.UniqueConstraint;
+import javax.persistence.Version;
 
 @Entity
-@Table(name = "app_user_transaction")
+@Table(name = "app_user_transaction", uniqueConstraints = @UniqueConstraint(columnNames = { "amount",
+		"transaction_date", "subMerchant_id", "user_id" }))
 public class AppUserTransaction extends BaseEntity {
 	/**
 	 * 
@@ -45,6 +48,9 @@ public class AppUserTransaction extends BaseEntity {
 	@ManyToOne
 	@JoinColumn(name = "user_id", referencedColumnName = "id")
 	private AppUser user;
+
+	@Version
+	private Long version;
 
 	public Date getTransactionDate() {
 		return transactionDate;
@@ -108,6 +114,14 @@ public class AppUserTransaction extends BaseEntity {
 
 	public void setUser(AppUser user) {
 		this.user = user;
+	}
+
+	public Long getVersion() {
+		return version;
+	}
+
+	public void setVersion(Long version) {
+		this.version = version;
 	}
 
 }

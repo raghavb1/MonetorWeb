@@ -31,10 +31,24 @@ public class BankPaymentDaoImpl implements IBankPaymentDao {
 
 	@SuppressWarnings("unchecked")
 	public List<BankPaymentMode> findBankPaymentModesByBankId(Long id) {
-		Query query = entityDao.getEntityManager().createQuery(
-				"Select mode from BankPaymentMode mode left join fetch mode.bank bank where bank.id =:id");
+		Query query = entityDao.getEntityManager()
+				.createQuery("Select mode from BankPaymentMode mode left join fetch mode.bank bank where bank.id =:id");
 		query.setParameter("id", id);
 		return (List<BankPaymentMode>) query.getResultList();
+	}
+
+	@SuppressWarnings("unchecked")
+	public BankPaymentMode findPaymentModeByExtractedString(Long id, String extractedString) {
+		Query query = entityDao.getEntityManager().createQuery(
+				"Select mode from BankPaymentMode mode left join fetch mode.bank bank where bank.id =:id and mode.extractedString =:extractedString");
+		query.setParameter("id", id);
+		query.setParameter("extractedString", extractedString);
+		List<BankPaymentMode> modes = (List<BankPaymentMode>) query.getResultList();
+		if (modes != null && modes.size() > 0) {
+			return modes.get(0);
+		} else {
+			return null;
+		}
 	}
 
 }

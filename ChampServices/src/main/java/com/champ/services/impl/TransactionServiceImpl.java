@@ -1,5 +1,6 @@
 package com.champ.services.impl;
 
+import java.util.Date;
 import java.util.List;
 
 import javax.transaction.Transactional;
@@ -34,15 +35,20 @@ public class TransactionServiceImpl implements ITransactionService {
 			LOG.info("{} transactions found for user {}", transactions.size(), user.getEmail());
 			for (TransactionDTO dto : transactions) {
 				try {
-					AppUserTransaction transaction = null;
-					if (dto != null) {
-						transaction = converterService.getTransactionFromDto(dto, user, bank);
-					}
-					if (transaction != null) {
-						transactionServiceDao.saveUserTransaction(transaction);
+					if (transactionServiceDao.checkUserTransaction(dto.getAmount(), dto.getDate(), dto.getSubMerchant(),
+							user.getEmail())) {
+						AppUserTransaction transaction = null;
+						if (dto != null) {
+							transaction = converterService.getTransactionFromDto(dto, user, bank);
+						}
+						if (transaction != null) {
+							transactionServiceDao.saveUserTransaction(transaction);
+						} else {
+							LOG.info("DTO received null for string {} and bank {}", dto.getPaymentModeString(),
+									bank.getName());
+						}
 					} else {
-						LOG.info("DTO received null for string {} and bank {}", dto.getPaymentModeString(),
-								bank.getName());
+						LOG.info("Transaction already exists for user {}", user.getEmail());
 					}
 				} catch (Exception e) {
 					LOG.error("Exception while saving transaction for user {}. Exception {}", user.getEmail(),
@@ -54,6 +60,10 @@ public class TransactionServiceImpl implements ITransactionService {
 
 	public List<AppUserTransaction> getUserTransactions(String email) {
 		return transactionServiceDao.getUserTransactions(email);
+	}
+
+	public boolean checkUserTransaction(Double amount, Date transactionDate, String submerchantCode, String email) {
+		return transactionServiceDao.checkUserTransaction(amount, transactionDate, submerchantCode, email);
 	}
 
 }

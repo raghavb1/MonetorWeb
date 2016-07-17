@@ -54,4 +54,8 @@ public class SubMerchantServiceImpl implements ISubMerchantService {
 		return subMerchantDao.getAllSubMerchants();
 	}
 
+	public SubMerchant findSubMerchantByCode(String code) {
+		return subMerchantDao.findSubMerchantByCode(code);
+	}
+
 }

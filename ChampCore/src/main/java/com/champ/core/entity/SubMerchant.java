@@ -15,7 +15,7 @@ public class SubMerchant extends BaseEntity {
 	 */
 	private static final long serialVersionUID = 5644259093264502006L;
 
-	@Column(name = "code")
+	@Column(name = "code", unique = true)
 	private String code;
 
 	@Column(name = "approved")
