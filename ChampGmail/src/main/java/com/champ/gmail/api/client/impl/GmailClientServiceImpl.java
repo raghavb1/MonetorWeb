@@ -5,19 +5,27 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.transaction.Transactional;
+
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpGet;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.champ.core.entity.AppUser;
+import com.champ.core.entity.Parser;
+import com.champ.core.entity.SearchQuery;
+import com.champ.core.utility.DateUtils;
+import com.champ.core.utility.DateUtils.TimeUnit;
+import com.champ.data.access.services.IAppUserDao;
 import com.champ.gmail.api.client.IGmailClientService;
 import com.champ.gmail.api.dto.TransactionDTO;
 import com.champ.gmail.api.response.GmailTokensResponse;
@@ -40,7 +48,8 @@ public class GmailClientServiceImpl implements IGmailClientService {
 	@Autowired
 	Convertor convertor;
 
-	private static final Logger LOG = LoggerFactory.getLogger(GmailClientServiceImpl.class);
+	@Autowired
+	IAppUserDao appUserDao;
 
 	public String getAuthURL() throws URISyntaxException {
 		return urlGenerator.getAuthURL().toString();
@@ -85,8 +94,8 @@ public class GmailClientServiceImpl implements IGmailClientService {
 		return result;
 	}
 
-	public TransactionDTO getTransactionDetailsFromEmail(MessageResponse messageResponse, String pattern)
-			throws ParseException {
+	public TransactionDTO getTransactionDetailsFromEmail(MessageResponse messageResponse, String pattern,
+			String dateFormat) throws ParseException {
 		TransactionDTO transaction = null;
 		String input = null;
 		if (messageResponse.getPayload().getParts() != null) {
@@ -98,26 +107,35 @@ public class GmailClientServiceImpl implements IGmailClientService {
 		Pattern r = Pattern.compile(pattern);
 		Matcher m = r.matcher(input);
 		if (m.find()) {
-			transaction = convertor.getTransactionDTOFromMessage(m);
+			transaction = convertor.getTransactionDTOFromMessage(m, dateFormat);
 		}
 		return transaction;
 	}
 
-	public List<TransactionDTO> getMessages(String email, String refreshToken, String searchQuery, String parser)
-			throws Exception {
+	@Transactional
+	public List<TransactionDTO> getMessages(AppUser user, SearchQuery searchQuery, Parser parser) throws Exception {
 		List<TransactionDTO> transactionDto = new ArrayList<TransactionDTO>();
-		String accessToken = refreshAccessToken(refreshToken).getAccessToken();
-		MessageListResponse list = getMessageList(email, searchQuery, accessToken);
+		String accessToken = user.getAccessToken();
+		if (DateUtils.isDatePassed(user.getGmailExpiryTime())) {
+			RefreshTokenResponse tokenResponse = refreshAccessToken(user.getRefreshToken());
+			if (tokenResponse == null) {
+				return null;
+			}
+			accessToken = tokenResponse.getAccess_token();
+			user.setAccessToken(accessToken);
+			user.setGmailExpiryTime(DateUtils.addToDate(new Date(), TimeUnit.SECONDS, tokenResponse.getExpires_in()));
+			user = appUserDao.saveOrUpdateUser(user);
+		}
+		MessageListResponse list = getMessageList(user.getEmail(), searchQuery.getSearchQuery(), accessToken);
 		if (list != null && list.getMessages() != null && list.getMessages().size() > 0) {
 			for (MessageListResponse.Message message : list.getMessages()) {
-				MessageResponse messageResponse = getMessage(email, message.getId(), accessToken);
-				TransactionDTO dto = getTransactionDetailsFromEmail(messageResponse, parser);
+				MessageResponse messageResponse = getMessage(user.getEmail(), message.getId(), accessToken);
+				TransactionDTO dto = getTransactionDetailsFromEmail(messageResponse,
+						StringEscapeUtils.unescapeJava(parser.getTemplate()),
+						StringEscapeUtils.unescapeJava(parser.getDateFormat()));
 				if (dto != null) {
 					transactionDto.add(dto);
-				} else {
-					LOG.info("Transaction DTO found null for user {}", email);
 				}
-
 			}
 		}
 		return transactionDto;

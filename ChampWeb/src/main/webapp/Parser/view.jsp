@@ -31,6 +31,7 @@
 								<tr>
 									<th>Template</th>
 									<th>Search Query</th>
+									<th>Date Format</th>
 									<th>Bank</th>
 									<th>Action</th>
 								</tr>
@@ -40,6 +41,7 @@
 									<tr id="${parser.id}">
 									<td><c:out value="${parser.template}" /></td>
 										<td>${parser.searchQuery.searchQuery}</td>
+										<td>${parser.dateFormat}</td>
 										<td>${parser.bank.name}</td>
 									<td><a
 												href='<c:url value="/Parser/edit/${parser.id}"></c:url>'

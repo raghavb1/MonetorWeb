@@ -72,7 +72,8 @@
 							</div>
 							<div class="col-lg-4">
 								<label>Search Query : </label> <select name="searchQuery.id"
-										class="form-control required" data-rel="chosen" id="searchQuery">
+										class="form-control required" data-rel="chosen"
+										id="searchQuery">
 									<div class="chosen-container">
 										<c:forEach items="${searchQueries}" var="searchQuery">
 											<c:choose>
@@ -86,6 +87,14 @@
 										</c:forEach>
 									</div>
 								</select>
+							</div>
+						</div>
+						<div class="col-lg-12"
+								style="margin-top: 20px">
+							<div class="col-lg-4">
+								<label>Date Format : </label> <input type="text"
+										name="dateFormat" class="form-control required"
+										value="${parser.dateFormat}" id="dateFormat">
 							</div>
 						</div>
 						<div class="col-lg-12"

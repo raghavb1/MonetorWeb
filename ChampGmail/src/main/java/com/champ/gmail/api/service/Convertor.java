@@ -13,10 +13,10 @@ import com.champ.gmail.api.dto.TransactionDTO;
 @Service
 public class Convertor {
 
-	public TransactionDTO getTransactionDTOFromMessage(Matcher m) throws ParseException {
+	public TransactionDTO getTransactionDTOFromMessage(Matcher m, String dateFormat) throws ParseException {
 		TransactionDTO transaction = new TransactionDTO();
 		String date = m.group("date");
-		DateFormat df = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+		DateFormat df = new SimpleDateFormat(dateFormat);
 		Date startDate = df.parse(date);
 
 		transaction.setAmount(Double.parseDouble(m.group("amount").replace(",", "")));

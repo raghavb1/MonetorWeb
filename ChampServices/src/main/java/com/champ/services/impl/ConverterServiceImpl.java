@@ -51,9 +51,10 @@ public class ConverterServiceImpl implements IConverterService {
 		user.setRefreshToken(request.getRefreshToken());
 		user.setTokenExpiryTime(DateUtils.addToDate(new Date(), TimeUnit.SECONDS, CacheManager.getInstance()
 				.getCache(PropertyMapCache.class).getPropertyInteger(Property.TOKEN_EXPIRY_UPDATE_SECONDS)));
-		if (request.getGmailTokenExpirySeconds() != null) {
-			user.setGmailExpiryTime(
-					DateUtils.addToDate(new Date(), TimeUnit.SECONDS, request.getGmailTokenExpirySeconds()));
+		user.setName(userInfo.getName());
+		user.setImage(userInfo.getPicture());
+		if (request.getExpires_in() != null) {
+			user.setGmailExpiryTime(DateUtils.addToDate(new Date(), TimeUnit.SECONDS, request.getExpires_in()));
 		} else {
 			user.setGmailExpiryTime(new Date());
 		}

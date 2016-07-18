@@ -22,7 +22,7 @@ public class AppUserTransactionDaoImpl implements IAppUserTransactionDao {
 		Query query = entityDao.getEntityManager().createQuery(
 				"Select transaction from AppUserTransaction transaction left join fetch transaction.subMerchant subMerchant "
 						+ "left join fetch transaction.bank bank left join fetch transaction.bankPaymentMode bankPaymentMode "
-						+ "left join fetch transaction.user user where user.email =:email and user.token =:token");
+						+ "left join fetch transaction.user user where user.email =:email and user.token =:token order by transaction.transactionDate DESC");
 		query.setParameter("email", email);
 		query.setParameter("token", token);
 		return (List<AppUserTransaction>) query.getResultList();

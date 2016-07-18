@@ -4,7 +4,7 @@ public class GmailTokensResponse {
 
 	private String access_token;
 	private String refresh_token;
-	private Integer gmailTokenExpirySeconds;
+	private Integer expires_in;
 
 	public String getAccessToken() {
 		return access_token;
@@ -22,7 +22,6 @@ public class GmailTokensResponse {
 		this.refresh_token = refresh_token;
 	}
 
-
 	public String getAccess_token() {
 		return access_token;
 	}
@@ -39,20 +38,18 @@ public class GmailTokensResponse {
 		this.refresh_token = refresh_token;
 	}
 
-	public Integer getGmailTokenExpirySeconds() {
-		return gmailTokenExpirySeconds;
+	public Integer getExpires_in() {
+		return expires_in;
 	}
 
-	public void setGmailTokenExpirySeconds(Integer gmailTokenExpirySeconds) {
-		this.gmailTokenExpirySeconds = gmailTokenExpirySeconds;
+	public void setExpires_in(Integer expires_in) {
+		this.expires_in = expires_in;
 	}
 
 	@Override
 	public String toString() {
 		return "GmailTokensResponse [access_token=" + access_token + ", refresh_token=" + refresh_token
-				+ ", gmailTokenExpirySeconds=" + gmailTokenExpirySeconds + "]";
+				+ ", expires_in=" + expires_in + "]";
 	}
-	
-	
 
 }

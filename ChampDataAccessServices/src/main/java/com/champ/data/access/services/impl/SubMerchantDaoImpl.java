@@ -7,7 +7,10 @@ import javax.persistence.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.champ.core.cache.PropertyMapCache;
 import com.champ.core.entity.SubMerchant;
+import com.champ.core.enums.Property;
+import com.champ.core.utility.CacheManager;
 import com.champ.data.access.services.IEntityDao;
 import com.champ.data.access.services.ISubMerchantDao;
 
@@ -17,8 +20,11 @@ public class SubMerchantDaoImpl implements ISubMerchantDao {
 	@Autowired
 	IEntityDao entityDao;
 
+	@SuppressWarnings("unchecked")
 	public List<SubMerchant> getAllUnaprovedSubMerchants() {
-		return entityDao.findAllUnapprovedObjects(SubMerchant.class);
+		Query query = entityDao.getEntityManager().createQuery("Select submerchant from SubMerchant submerchant where submerchant.approved = false order by submerchant.created DESC");
+		query.setMaxResults(CacheManager.getInstance().getCache(PropertyMapCache.class).getPropertyInteger(Property.SUBMERCHANT_FETCH_LIMIT));
+		return (List<SubMerchant>)query.getResultList();
 	}
 
 	public void approveSubmerchant(SubMerchant subMerchant) {

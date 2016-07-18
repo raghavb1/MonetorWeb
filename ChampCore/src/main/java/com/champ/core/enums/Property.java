@@ -16,7 +16,8 @@ public enum Property {
 	TRANSACTION_EXECUTOR_REJECTION_TIME					("transaction.executor.rejection.time","5000"),
 	TRANSACTION_FETCH_USER_BATCH						("transaction.fetch.user.batch","5"),
 	MESSAGES_FETCH_PERIOD								("messages.fetch.period","15"),
-	GMAIL_SCOPE											("gmail.scope","https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile");
+	GMAIL_SCOPE											("gmail.scope","https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile"),
+	SUBMERCHANT_FETCH_LIMIT								("submerchant.fetch.limit","500");
 
 	private String name;
 

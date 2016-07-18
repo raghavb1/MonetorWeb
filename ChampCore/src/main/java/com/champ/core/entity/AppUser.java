@@ -44,6 +44,12 @@ public class AppUser extends BaseEntity {
 	@Column(name = "last_synced_on", nullable = false)
 	private Date lastSyncedOn = DateUtils.addToDate(new Date(), TimeUnit.DAY, -60);
 
+	@Column(name = "name")
+	private String name;
+
+	@Column(name = "image")
+	private String image;
+
 	public Date getTokenExpiryTime() {
 		return tokenExpiryTime;
 	}
@@ -100,11 +106,27 @@ public class AppUser extends BaseEntity {
 		this.lastSyncedOn = lastSyncedOn;
 	}
 
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getImage() {
+		return image;
+	}
+
+	public void setImage(String image) {
+		this.image = image;
+	}
+
 	@Override
 	public String toString() {
 		return "AppUser [email=" + email + ", token=" + token + ", accessToken=" + accessToken + ", refreshToken="
 				+ refreshToken + ", tokenExpiryTime=" + tokenExpiryTime + ", gmailExpiryTime=" + gmailExpiryTime
-				+ ", lastSyncedOn=" + lastSyncedOn + "]";
+				+ ", lastSyncedOn=" + lastSyncedOn + ", name=" + name + ", image=" + image + "]";
 	}
 
 	@Override

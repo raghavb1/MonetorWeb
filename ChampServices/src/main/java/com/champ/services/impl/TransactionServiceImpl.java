@@ -47,8 +47,6 @@ public class TransactionServiceImpl implements ITransactionService {
 							LOG.info("DTO received null for string {} and bank {}", dto.getPaymentModeString(),
 									bank.getName());
 						}
-					} else {
-						LOG.info("Transaction already exists for user {}", user.getEmail());
 					}
 				} catch (Exception e) {
 					LOG.error("Exception while saving transaction for user {}. Exception {}", user.getEmail(),

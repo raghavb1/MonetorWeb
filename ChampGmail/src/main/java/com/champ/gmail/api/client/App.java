@@ -100,7 +100,7 @@ public class App
 		Matcher m = r.matcher(input);
 		
 		if(m.find()){
-			transaction = convertor.getTransactionDTOFromMessage(m);
+			transaction = convertor.getTransactionDTOFromMessage(m, null);
 		}
 
 
@@ -116,7 +116,7 @@ public class App
 		String searchQuery = "from :alert@icicibank.com";
 		String pattern = "transaction of INR (?<amount>.*) Info\\.(?<transactionType>.*)\\*(?<merchant>.*) on (?<date>.*). The available balance in your Account is Rs. (?<balance>.*)\\.";
 			
-		String accessToken = api.refreshAccessToken(refreshToken).getAccessToken();
+		String accessToken = api.refreshAccessToken(refreshToken).getAccess_token();
 		MessageListResponse list = api.getMessageList("deepanshu18march@gmail.com", searchQuery, accessToken);
 	
 		for(MessageListResponse.Message message : list.getMessages()){

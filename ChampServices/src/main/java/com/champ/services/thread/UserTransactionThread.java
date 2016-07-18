@@ -3,7 +3,6 @@ package com.champ.services.thread;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,9 +69,8 @@ public class UserTransactionThread implements Runnable {
 				.getSearchQueryParserByBankName(bank.getName());
 		if (searchQueries != null && searchQueries.size() > 0) {
 			for (SearchQueryParserDto dto : searchQueries) {
-				List<TransactionDTO> transactions = gmailClient.getMessages(user.getEmail(), user.getRefreshToken(),
-						dto.getSearchQuery().getSearchQuery(),
-						StringEscapeUtils.unescapeJava(dto.getParser().getTemplate()));
+				List<TransactionDTO> transactions = gmailClient.getMessages(user, dto.getSearchQuery(),
+						dto.getParser());
 				if (transactions != null && transactions.size() > 0) {
 					List<Bank> banks = CacheManager.getInstance().getCache(AppUserBankCache.class)
 							.getBanksForUserByEmail(user.getEmail());

@@ -47,6 +47,7 @@ public class ParserController {
 			persistedParser.setSearchQuery(parser.getSearchQuery());
 			persistedParser.setTemplate(parser.getTemplate());
 			persistedParser.setBank(parser.getBank());
+			persistedParser.setDateFormat(parser.getDateFormat());
 			parserService.saveOrUpdateParser(persistedParser);
 		} else {
 			parserService.saveOrUpdateParser(parser);

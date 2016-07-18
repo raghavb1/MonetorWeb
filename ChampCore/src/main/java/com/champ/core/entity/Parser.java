@@ -17,15 +17,26 @@ public class Parser extends BaseEntity {
 	 */
 	private static final long serialVersionUID = -4330083575476647064L;
 
-	@ManyToOne(fetch=FetchType.EAGER)
+	@ManyToOne(fetch = FetchType.EAGER)
 	private Bank bank;
 
 	@Column(name = "template")
 	private String template;
 
-	@OneToOne(fetch=FetchType.EAGER)
+	@OneToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "search_query_id", referencedColumnName = "id")
 	private SearchQuery searchQuery;
+
+	@Column(name = "date_format")
+	private String dateFormat;
+
+	public String getDateFormat() {
+		return dateFormat;
+	}
+
+	public void setDateFormat(String dateFormat) {
+		this.dateFormat = dateFormat;
+	}
 
 	public Bank getBank() {
 		return bank;

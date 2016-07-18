@@ -9,7 +9,10 @@ import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Service;
 
 import com.champ.core.cache.AppUserBankCache;
@@ -41,7 +44,7 @@ import com.champ.services.thread.CacheReloadThread;
 import com.champ.services.thread.UserBatchThread;
 
 @Service
-public class StartupServiceImpl implements IStartupService {
+public class StartupServiceImpl implements IStartupService, ApplicationContextAware {
 
 	@Autowired
 	IPropertyDao propertyDao;
@@ -68,6 +71,8 @@ public class StartupServiceImpl implements IStartupService {
 	ISubMerchantService subMerchantService;
 
 	private ScheduledExecutorService cacheReloadExecutor = Executors.newScheduledThreadPool(2);
+
+	private ApplicationContext applicationContext;
 
 	private static final Logger LOG = LoggerFactory.getLogger(StartupServiceImpl.class);
 
@@ -165,6 +170,9 @@ public class StartupServiceImpl implements IStartupService {
 		loadProperties();
 		loadPaymentModeCache();
 		loadAppUserBanks();
+		loadBankCache();
+		loadTransactionExecutor();
+		loadSubmerchantsCache();
 		LOG.info("Context Reload Completed");
 	}
 
@@ -275,4 +283,13 @@ public class StartupServiceImpl implements IStartupService {
 		CacheManager.getInstance().setCache(cache);
 		LOG.info("Loaded Submerchants Cache");
 	}
+
+	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+		this.applicationContext = applicationContext;
+	}
+
+	public ApplicationContext getApplicationContext() {
+		return applicationContext;
+	}
+
 }
