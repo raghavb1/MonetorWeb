@@ -143,6 +143,8 @@ public class GmailClientServiceImpl implements IGmailClientService {
 					}
 				}
 				pageToken = list.getNextPageToken();
+			}else{
+				pageToken = null;
 			}
 		}while(pageToken != null);
 
