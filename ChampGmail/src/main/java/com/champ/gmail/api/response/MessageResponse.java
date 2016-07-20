@@ -1,11 +1,13 @@
 package com.champ.gmail.api.response;
 
+
 import java.util.List;
 
 public class MessageResponse {
 	
 	private String threadId;
 	private Payload payload;
+	private String internalDate;
 	
 	public class Payload{
 		private List<Parts> parts;
@@ -90,11 +92,19 @@ public class MessageResponse {
 		this.payload = payload;
 	}
 
+	
+	public String getInternalDate() {
+		return internalDate;
+	}
+
+	public void setInternalDate(String internalDate) {
+		this.internalDate = internalDate;
+	}
+
 	@Override
 	public String toString() {
-		return "MessageResponse [threadId=" + threadId + ", payload=" + payload + "]";
+		return "MessageResponse [threadId=" + threadId + ", payload=" + payload + ", internalDate=" + internalDate
+				+ "]";
 	}
-	
-	
 	
 }

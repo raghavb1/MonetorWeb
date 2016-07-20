@@ -72,9 +72,9 @@ public class GmailClientServiceImpl implements IGmailClientService {
 		return ((RefreshTokenResponse) helper.getObjectFromJsonString(sb, RefreshTokenResponse.class));
 	}
 
-	public MessageListResponse getMessageList(String userId, String searchQuery, String accessToken)
+	public MessageListResponse getMessageList(String userId, String searchQuery, String accessToken,String pageToken)
 			throws URISyntaxException, ClientProtocolException, IOException {
-		URI uri = urlGenerator.getMessageListURL(userId, searchQuery, accessToken);
+		URI uri = urlGenerator.getMessageListURL(userId, searchQuery, accessToken, pageToken);
 		StringBuffer sb = helper.executeGet(uri.toString());
 		return (MessageListResponse) helper.getObjectFromJsonString(sb, MessageListResponse.class);
 	}
@@ -109,6 +109,9 @@ public class GmailClientServiceImpl implements IGmailClientService {
 		if (m.find()) {
 			transaction = convertor.getTransactionDTOFromMessage(m, dateFormat);
 		}
+		if(transaction.getDate() == null){
+			transaction.setDate(new Date(Long.parseLong(messageResponse.getInternalDate())));
+		}
 		return transaction;
 	}
 
@@ -126,18 +129,23 @@ public class GmailClientServiceImpl implements IGmailClientService {
 			user.setGmailExpiryTime(DateUtils.addToDate(new Date(), TimeUnit.SECONDS, tokenResponse.getExpires_in()));
 			user = appUserDao.saveOrUpdateUser(user);
 		}
-		MessageListResponse list = getMessageList(user.getEmail(), searchQuery.getSearchQuery(), accessToken);
-		if (list != null && list.getMessages() != null && list.getMessages().size() > 0) {
-			for (MessageListResponse.Message message : list.getMessages()) {
-				MessageResponse messageResponse = getMessage(user.getEmail(), message.getId(), accessToken);
-				TransactionDTO dto = getTransactionDetailsFromEmail(messageResponse,
-						StringEscapeUtils.unescapeJava(parser.getTemplate()),
-						StringEscapeUtils.unescapeJava(parser.getDateFormat()));
-				if (dto != null) {
-					transactionDto.add(dto);
+		String pageToken = null;
+		do{
+			MessageListResponse list = getMessageList(user.getEmail(), searchQuery.getSearchQuery(), accessToken, pageToken);
+			if (list != null && list.getMessages() != null && list.getMessages().size() > 0) {
+				for (MessageListResponse.Message message : list.getMessages()) {
+					MessageResponse messageResponse = getMessage(user.getEmail(), message.getId(), accessToken);
+					TransactionDTO dto = getTransactionDetailsFromEmail(messageResponse,
+							StringEscapeUtils.unescapeJava(parser.getTemplate()),
+							StringEscapeUtils.unescapeJava(parser.getDateFormat()));
+					if (dto != null) {
+						transactionDto.add(dto);
+					}
 				}
+				pageToken = list.getNextPageToken();
 			}
-		}
+		}while(pageToken != null);
+
 		return transactionDto;
 	}
 

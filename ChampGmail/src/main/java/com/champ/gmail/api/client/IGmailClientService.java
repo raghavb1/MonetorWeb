@@ -26,7 +26,7 @@ public interface IGmailClientService {
 	public RefreshTokenResponse refreshAccessToken(String refreshToken)
 			throws URISyntaxException, ClientProtocolException, IOException;
 
-	public MessageListResponse getMessageList(String userId, String searchQuery, String accessToken)
+	public MessageListResponse getMessageList(String userId, String searchQuery, String accessToken, String pageToken)
 			throws URISyntaxException, ClientProtocolException, IOException;
 
 	public MessageResponse getMessage(String userId, String messageId, String accessToken)

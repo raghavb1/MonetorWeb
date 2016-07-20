@@ -46,11 +46,27 @@ public class URLGeneratorService {
 		return uri;
 	}
 
-	public URI getMessageListURL(String userId, String searchQuery, String accessToken) throws URISyntaxException {
-		URI uri = new URIBuilder().setScheme("https").setHost("www.googleapis.com")
-				.setPath("/gmail/v1/users/" + userId + "/messages").setParameter("access_token", accessToken)
-				.setParameter("q", searchQuery).build();
-
+	public URI getMessageListURL(String userId, String searchQuery, String accessToken,String nextPageToken) throws URISyntaxException {
+		URI uri = null;
+		
+		if(nextPageToken != null){
+			uri = new URIBuilder()
+					.setScheme("https")
+					.setHost("www.googleapis.com")
+					.setPath("/gmail/v1/users/"+userId+"/messages")
+					.setParameter("access_token", accessToken) 
+					.setParameter("q", searchQuery)
+					.setParameter("pageToken", nextPageToken)
+					.build();
+		}else{
+			uri = new URIBuilder()
+				.setScheme("https")
+				.setHost("www.googleapis.com")
+				.setPath("/gmail/v1/users/"+userId+"/messages")
+				.setParameter("access_token", accessToken) 
+				.setParameter("q", searchQuery)
+				.build();
+		}
 		return uri;
 	}
 
