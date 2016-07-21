@@ -13,7 +13,7 @@ import com.champ.services.IValidationService;
 @Service("validationService")
 public class ValidationServiceImpl implements IValidationService {
 
-	public boolean validateSigninCall(BaseRequest request) {
+	public boolean validateBaseCall(BaseRequest request) {
 		if (request == null) {
 			return false;
 		}

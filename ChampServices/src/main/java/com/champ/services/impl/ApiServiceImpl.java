@@ -2,7 +2,9 @@ package com.champ.services.impl;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.transaction.Transactional;
 
@@ -14,12 +16,18 @@ import org.springframework.stereotype.Service;
 import com.champ.base.request.BaseRequest;
 import com.champ.base.request.GetUserBanksRequest;
 import com.champ.base.request.GetUserTransactionRequest;
+import com.champ.base.response.CategoryResponse;
 import com.champ.base.response.GetUserBankResponse;
+import com.champ.base.response.GetUserPropertiesResponse;
 import com.champ.base.response.GetUserTransactionResponse;
+import com.champ.base.response.PaymentModeResponse;
 import com.champ.base.response.SignupResponse;
 import com.champ.base.response.UserBank;
 import com.champ.core.cache.AppUserBankCache;
+import com.champ.core.cache.CategoryCache;
+import com.champ.core.cache.PaymentModeCache;
 import com.champ.core.cache.PropertyMapCache;
+import com.champ.core.dto.PropertyMap;
 import com.champ.core.entity.AppUser;
 import com.champ.core.entity.AppUserTransaction;
 import com.champ.core.entity.Bank;
@@ -85,6 +93,8 @@ public class ApiServiceImpl implements IApiService {
 		LOG.info("Thread Started to get user messages");
 		response.setEmail(user.getEmail());
 		response.setToken(user.getToken());
+		response.setName(user.getName());
+		response.setImage(user.getImage());
 		return response;
 	}
 
@@ -136,6 +146,34 @@ public class ApiServiceImpl implements IApiService {
 			LOG.info("Transactions not found for user {}", request.getEmail());
 			throw new MonetorServiceException(ApiResponseCodes.USER_TRANSACTIONS_NOT_FOUND);
 		}
+		return response;
+	}
+
+	public GetUserPropertiesResponse getUserProperties(BaseRequest request) throws Exception {
+		GetUserPropertiesResponse response = new GetUserPropertiesResponse();
+		PropertyMap map = CacheManager.getInstance().getCache(PropertyMapCache.class).getProperty("user~");
+		if (map != null && map.getMap() != null && map.getMap().size() > 0) {
+			Map<String, String> properties = new HashMap<String, String>();
+			for (Map.Entry<String, PropertyMap> entry : map.getMap().entrySet()) {
+				properties.put(entry.getKey(), entry.getValue().getValue());
+			}
+			response.setProperties(properties);
+		} else {
+			LOG.info("Properties not found in Cache");
+			throw new MonetorServiceException(ApiResponseCodes.USER_PROPERTIES_NOT_FOUND);
+		}
+		return response;
+	}
+
+	public PaymentModeResponse getPaymentModes(BaseRequest request) throws Exception {
+		PaymentModeResponse response = new PaymentModeResponse();
+		response.setPaymentModes(CacheManager.getInstance().getCache(PaymentModeCache.class).getPaymentModes());
+		return response;
+	}
+
+	public CategoryResponse getCategories(BaseRequest request) throws Exception {
+		CategoryResponse response = new CategoryResponse();
+		response.setCategories(CacheManager.getInstance().getCache(CategoryCache.class).getCategories());
 		return response;
 	}
 

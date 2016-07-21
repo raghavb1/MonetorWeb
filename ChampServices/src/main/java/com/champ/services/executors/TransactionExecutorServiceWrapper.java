@@ -1,29 +1,38 @@
 package com.champ.services.executors;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.champ.gmail.api.client.IGmailClientService;
 import com.champ.services.IAppUserBankService;
 import com.champ.services.IAppUserService;
 import com.champ.services.ITransactionService;
 
-@Service("transactionExecutorServiceWrapper")
 public class TransactionExecutorServiceWrapper {
 
-	@Autowired
+	private static TransactionExecutorServiceWrapper instance = null;
+
 	private ITransactionService transactionService;
 
-	@Autowired
 	private IGmailClientService gmailClient;
 
-	@Autowired
 	private IAppUserBankService appUserBankService;
 
-	@Autowired
 	private IAppUserService appUserService;
 
 	private TransactionExecutorService transactionExecutorService;
+
+	private TransactionExecutorServiceWrapper() {
+		super();
+	}
+
+	public static TransactionExecutorServiceWrapper getInstance() {
+		if (instance == null) {
+			synchronized (TransactionExecutorServiceWrapper.class) {
+				if (instance == null) {
+					instance = new TransactionExecutorServiceWrapper();
+				}
+			}
+		}
+		return instance;
+	}
 
 	public ITransactionService getTransactionService() {
 		return transactionService;

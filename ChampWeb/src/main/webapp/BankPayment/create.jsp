@@ -42,9 +42,22 @@
 						<input type="hidden" name="id" value="${bankPaymentMode.id}" />
 						<div class="col-lg-12" style="margin-top: 20px">
 							<div class="col-lg-4">
-								<label>Payment Mode : </label> <input type="text"
-										name="paymentMode" class="form-control required"
-										value="${bankPaymentMode.paymentMode}">
+								<label>Payment Mode : </label> <select name="paymentMode.id"
+										class="form-control required" data-rel="chosen"
+										id="paymentMode">
+									<div class="chosen-container">
+										<c:forEach items="${paymentModes}" var="mode">
+											<c:choose>
+												<c:when test="${mode.id eq bankPaymentMode.paymentMode.id}">
+													<option value="${mode.id}" selected="selected">${mode.name}</option>
+												</c:when>
+												<c:otherwise>
+													<option value="${mode.id}">${mode.name}</option>
+												</c:otherwise>
+											</c:choose>
+										</c:forEach>
+									</div>
+								</select>
 							</div>
 								<div class="col-lg-4">
 									<label>Extracted String : </label> <input type="text"

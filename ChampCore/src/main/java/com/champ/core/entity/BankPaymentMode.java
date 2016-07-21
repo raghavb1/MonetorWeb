@@ -5,6 +5,7 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 @Entity
@@ -23,8 +24,9 @@ public class BankPaymentMode extends BaseEntity {
 	@Column(name = "extracted_string")
 	private String extractedString;
 
-	@Column(name = "payment_mode")
-	private String paymentMode;
+	@OneToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "payment_mode_id", referencedColumnName = "id")
+	private PaymentMode paymentMode;
 
 	public Bank getBank() {
 		return bank;
@@ -42,11 +44,11 @@ public class BankPaymentMode extends BaseEntity {
 		this.extractedString = extractedString;
 	}
 
-	public String getPaymentMode() {
+	public PaymentMode getPaymentMode() {
 		return paymentMode;
 	}
 
-	public void setPaymentMode(String paymentMode) {
+	public void setPaymentMode(PaymentMode paymentMode) {
 		this.paymentMode = paymentMode;
 	}
 

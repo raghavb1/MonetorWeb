@@ -89,8 +89,13 @@
 							</div>
 								<div class="col-lg-4">
 									<label>Category Image Url : </label> <input type="text"
-											name="categoryImageUrl" class="form-control required"
-											value="${category.categoryImageUrl}">
+										name="categoryImageUrl" class="form-control required"
+										value="${category.categoryImageUrl}">
+								</div>
+								<div class="col-lg-4">
+									<label>Category Colour : </label> <input type="text"
+										name="color" class="form-control required"
+										value="${category.color}">
 								</div>
 						</div>
 						<div class="col-lg-12"

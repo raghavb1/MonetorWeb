@@ -19,7 +19,7 @@
 	<div id="content" class="col-sm-11 col-lg-10">
 		<div class="box">
 		<div class="box-header" style="padding-top: 10px; padding-left: 10px">
-		Existing Categories
+		Payment Modes
 		</div>
 			<div class="box-content">
 			<input type="hidden" id="message" value="${message}" />
@@ -29,20 +29,18 @@
 								class="table table-striped table-bordered bootstrap-datatable datatable">
 							<thead>
 								<tr>
-									<th>Category Name</th>
-									<th>Category Image Url</th>
-									<th>Color</th>
+									<th>Payment Mode</th>
+									<th>Icon Url</th>
 									<th>Action</th>
 								</tr>
 							</thead>
 							<tbody>
-								<c:forEach var="category" items="${categories}">
+								<c:forEach var="paymentMode" items="${paymentModes}">
 									<tr>
-										<td>${category.name}</td>
-										<td>${category.categoryImageUrl}
-											<td>${category.color}</td>	
+										<td>${paymentMode.name}</td>
+										<td>${paymentMode.iconUrl}</td>
 											<td><a
-												href='<c:url value="/Category/edit/${category.id}"></c:url>'
+												href='<c:url value="/PaymentMode/edit/${paymentMode.id}"></c:url>'
 												class="btn btn-primary">Edit</a> 
 											</td>
 									</tr>

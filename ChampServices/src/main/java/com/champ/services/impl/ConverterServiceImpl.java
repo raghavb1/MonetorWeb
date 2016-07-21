@@ -111,7 +111,7 @@ public class ConverterServiceImpl implements IConverterService {
 				}
 			}
 			if (transaction.getBankPaymentMode() != null) {
-				userTransaction.setPaymentMode(transaction.getBankPaymentMode().getPaymentMode());
+				userTransaction.setPaymentMode(transaction.getBankPaymentMode().getPaymentMode().getName());
 			}
 			userTransaction.setTransactionDate(transaction.getTransactionDate());
 			userTransactions.add(userTransaction);

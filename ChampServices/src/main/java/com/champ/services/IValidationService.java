@@ -6,7 +6,7 @@ import com.champ.base.request.GetUserTransactionRequest;
 
 public interface IValidationService {
 
-	public boolean validateSigninCall(BaseRequest request);
+	public boolean validateBaseCall(BaseRequest request);
 
 	public boolean validateCallToGetBanksForUser(GetUserBanksRequest request);
 

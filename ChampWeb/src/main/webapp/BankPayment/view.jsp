@@ -39,7 +39,7 @@
 								<c:forEach var="bankPaymentMode" items="${bankPaymentModes}">
 									<tr>
 										<td>${bankPaymentMode.bank.name}</td>
-										<td>${bankPaymentMode.paymentMode}</td>
+										<td>${bankPaymentMode.paymentMode.name}</td>
 										<td>${bankPaymentMode.extractedString}</td>
 											<td><a
 												href='<c:url value="/BankPayment/edit/${bankPaymentMode.id}"></c:url>'

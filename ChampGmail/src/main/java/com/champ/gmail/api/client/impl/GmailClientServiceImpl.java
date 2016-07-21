@@ -108,9 +108,9 @@ public class GmailClientServiceImpl implements IGmailClientService {
 		Matcher m = r.matcher(input);
 		if (m.find()) {
 			transaction = convertor.getTransactionDTOFromMessage(m, dateFormat);
-		}
-		if(transaction.getDate() == null){
-			transaction.setDate(new Date(Long.parseLong(messageResponse.getInternalDate())));
+			if(transaction.getDate() == null){
+				transaction.setDate(new Date(Long.parseLong(messageResponse.getInternalDate())));
+			}
 		}
 		return transaction;
 	}

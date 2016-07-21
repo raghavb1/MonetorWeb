@@ -12,8 +12,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.champ.base.request.BaseRequest;
 import com.champ.base.request.GetUserBanksRequest;
 import com.champ.base.request.GetUserTransactionRequest;
+import com.champ.base.response.CategoryResponse;
 import com.champ.base.response.GetUserBankResponse;
+import com.champ.base.response.GetUserPropertiesResponse;
 import com.champ.base.response.GetUserTransactionResponse;
+import com.champ.base.response.PaymentModeResponse;
 import com.champ.base.response.SignupResponse;
 import com.champ.core.enums.ApiResponseCodes;
 import com.champ.core.exception.MonetorServiceException;
@@ -41,7 +44,7 @@ public class MonetorWebServiceController {
 	public SignupResponse signin(@RequestBody BaseRequest request) throws Exception {
 		LOG.info("Request Recieved for Signin {}", request);
 		SignupResponse response = null;
-		if (validationService.validateSigninCall(request)) {
+		if (validationService.validateBaseCall(request)) {
 			response = apiService.signin(request);
 		} else {
 			LOG.info("Invalid Request");
@@ -82,4 +85,48 @@ public class MonetorWebServiceController {
 		return response;
 	}
 
+	@RequestMapping(value = "/getUserProperties", produces = "application/json", method = RequestMethod.POST)
+	@ResponseBody
+	public GetUserPropertiesResponse getUserProperties(@RequestBody BaseRequest request) throws Exception {
+		LOG.info("Request Recieved for getting properties for a user {}", request);
+		GetUserPropertiesResponse response = null;
+		if (validationService.validateBaseCall(request)) {
+			response = apiService.getUserProperties(request);
+		} else {
+			LOG.info("Invalid Request");
+			throw new MonetorServiceException(ApiResponseCodes.INVALID_REQUEST);
+		}
+		LOG.info("Sending Response for getting properties for a user {}", response);
+		return response;
+	}
+
+	@RequestMapping(value = "/getPaymentModes", produces = "application/json", method = RequestMethod.POST)
+	@ResponseBody
+	public PaymentModeResponse getPaymentModes(@RequestBody BaseRequest request) throws Exception {
+		LOG.info("Request Recieved for getting payment modes for a user {}", request);
+		PaymentModeResponse response = null;
+		if (validationService.validateBaseCall(request)) {
+			response = apiService.getPaymentModes(request);
+		} else {
+			LOG.info("Invalid Request");
+			throw new MonetorServiceException(ApiResponseCodes.INVALID_REQUEST);
+		}
+		LOG.info("Sending Response for getting payment modes for a user {}", response);
+		return response;
+	}
+
+	@RequestMapping(value = "/getCategories", produces = "application/json", method = RequestMethod.POST)
+	@ResponseBody
+	public CategoryResponse getCategories(@RequestBody BaseRequest request) throws Exception {
+		LOG.info("Request Recieved for getting categories for a user {}", request);
+		CategoryResponse response = null;
+		if (validationService.validateBaseCall(request)) {
+			response = apiService.getCategories(request);
+		} else {
+			LOG.info("Invalid Request");
+			throw new MonetorServiceException(ApiResponseCodes.INVALID_REQUEST);
+		}
+		LOG.info("Sending Response for getting categories for a user {}", response);
+		return response;
+	}
 }
