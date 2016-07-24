@@ -22,7 +22,7 @@ public class SubMerchantDaoImpl implements ISubMerchantDao {
 
 	@SuppressWarnings("unchecked")
 	public List<SubMerchant> getAllUnaprovedSubMerchants() {
-		Query query = entityDao.getEntityManager().createQuery("Select submerchant from SubMerchant submerchant where submerchant.approved = false order by submerchant.created DESC");
+		Query query = entityDao.getEntityManager().createQuery("Select submerchant from SubMerchant submerchant where submerchant.approved = false and submerchant.userDefined = false order by submerchant.created DESC");
 		query.setMaxResults(CacheManager.getInstance().getCache(PropertyMapCache.class).getPropertyInteger(Property.SUBMERCHANT_FETCH_LIMIT));
 		return (List<SubMerchant>)query.getResultList();
 	}

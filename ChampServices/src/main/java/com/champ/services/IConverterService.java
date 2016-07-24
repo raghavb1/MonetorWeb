@@ -2,6 +2,7 @@ package com.champ.services;
 
 import java.util.List;
 
+import com.champ.base.dto.UserMappedTransaction;
 import com.champ.base.response.UserBank;
 import com.champ.base.response.UserTransaction;
 import com.champ.core.entity.AppUser;
@@ -22,4 +23,6 @@ public interface IConverterService {
 	public String generateTokenForUser();
 
 	public AppUserTransaction getTransactionFromDto(TransactionDTO dto, AppUser user, Bank bank);
+	
+	public AppUserTransaction getTransactionFromDto(UserMappedTransaction transaction, String email);
 }

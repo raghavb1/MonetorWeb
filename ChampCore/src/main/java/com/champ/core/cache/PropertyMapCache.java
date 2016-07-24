@@ -1,5 +1,6 @@
 package com.champ.core.cache;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +14,7 @@ public class PropertyMapCache {
 
 	private Map<String, PropertyMap> propertyMap = new HashMap<String, PropertyMap>();
 	private static final String separator = "~";
+	private static final String listSeparator = ",";
 
 	public PropertyMapCache(Map<String, PropertyMap> propertyMap) {
 		super();
@@ -120,6 +122,15 @@ public class PropertyMapCache {
 		PropertyMap valueObject = getProperty(property.getName());
 		if (valueObject != null) {
 			return Boolean.parseBoolean(valueObject.getValue());
+		} else {
+			return null;
+		}
+	}
+
+	public List<String> getPropertyList(Property property) {
+		PropertyMap valueObject = getProperty(property.getName());
+		if (valueObject != null && valueObject.getValue() != null && !valueObject.getValue().equals("")) {
+			return Arrays.asList(valueObject.getValue().split(listSeparator));
 		} else {
 			return null;
 		}

@@ -25,6 +25,9 @@ public class SubMerchant extends BaseEntity {
 	@JoinColumn(name = "merchant_id", referencedColumnName = "id", nullable = true)
 	Merchant merchant;
 
+	@Column(name = "user_defined")
+	private Boolean userDefined = false;
+	
 	public String getCode() {
 		return code;
 	}
@@ -47,6 +50,14 @@ public class SubMerchant extends BaseEntity {
 
 	public void setMerchant(Merchant merchant) {
 		this.merchant = merchant;
+	}
+
+	public Boolean getUserDefined() {
+		return userDefined;
+	}
+
+	public void setUserDefined(Boolean userDefined) {
+		this.userDefined = userDefined;
 	}
 
 }

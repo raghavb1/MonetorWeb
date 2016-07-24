@@ -45,6 +45,9 @@
 						<li><a class="submenu"
 							href="<c:url value="/Merchant/view" />"><i class="fa fa-edit"></i><span
 								class="hidden-sm text"> View/Edit</span> </a></li>
+						<li><a class="submenu"
+							href="<c:url value="/Bulk/Merchant/create" />"><i class="fa fa-folder"></i><span
+								class="hidden-sm text"> Bulk Upload</span> </a></li>		
 					</ul></li>
 			</security:authorize>
 			<security:authorize access="hasAnyRole('ROLE_ADMIN')">

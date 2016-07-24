@@ -12,8 +12,14 @@ public interface ITransactionService {
 
 	public void saveUserTransactions(List<TransactionDTO> transactions, AppUser user, Bank bank);
 
-	public List<AppUserTransaction> getUserTransactions(String email);
-
 	public boolean checkUserTransaction(Double amount, Date transactionDate, String submerchantCode, String email);
+
+	public List<AppUserTransaction> getUserTransactions(String email, String token);
+
+	public AppUserTransaction getUserTransactionByIdAndEmail(String email, String token, Long id);
+
+	public AppUserTransaction saveTransaction(AppUserTransaction transaction);
+
+	public List<AppUserTransaction> getUserCreatedTransactions(String email, String token);
 
 }

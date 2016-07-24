@@ -5,6 +5,7 @@ import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
@@ -38,16 +39,23 @@ public class AppUserTransaction extends BaseEntity {
 	private String transactionCode;
 
 	@ManyToOne
-	@JoinColumn(name = "bank_id", referencedColumnName = "id")
+	@JoinColumn(name = "bank_id", referencedColumnName = "id", nullable = true)
 	private Bank bank;
 
 	@ManyToOne
-	@JoinColumn(name = "payment_mode_id", referencedColumnName = "id", nullable = true)
-	private BankPaymentMode bankPaymentMode;
+	@JoinColumn(name = "pay_mode_id", referencedColumnName = "id", nullable = true)
+	private PaymentMode paymentMode;
 
 	@ManyToOne
 	@JoinColumn(name = "user_id", referencedColumnName = "id")
 	private AppUser user;
+
+	@Column(name = "user_defined")
+	private Boolean userDefined = false;
+
+	@ManyToOne
+	@JoinTable(name = "transaction_category_override", joinColumns = @JoinColumn(name = "transaction_id"), inverseJoinColumns = @JoinColumn(name = "category_id"))
+	private Category category;
 
 	@Version
 	private Long version;
@@ -100,12 +108,12 @@ public class AppUserTransaction extends BaseEntity {
 		this.bank = bank;
 	}
 
-	public BankPaymentMode getBankPaymentMode() {
-		return bankPaymentMode;
+	public PaymentMode getPaymentMode() {
+		return paymentMode;
 	}
 
-	public void setBankPaymentMode(BankPaymentMode bankPaymentMode) {
-		this.bankPaymentMode = bankPaymentMode;
+	public void setPaymentMode(PaymentMode paymentMode) {
+		this.paymentMode = paymentMode;
 	}
 
 	public AppUser getUser() {
@@ -122,6 +130,22 @@ public class AppUserTransaction extends BaseEntity {
 
 	public void setVersion(Long version) {
 		this.version = version;
+	}
+
+	public Boolean getUserDefined() {
+		return userDefined;
+	}
+
+	public void setUserDefined(Boolean userDefined) {
+		this.userDefined = userDefined;
+	}
+
+	public Category getCategory() {
+		return category;
+	}
+
+	public void setCategory(Category category) {
+		this.category = category;
 	}
 
 }

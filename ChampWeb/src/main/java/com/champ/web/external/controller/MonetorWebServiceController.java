@@ -12,11 +12,13 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.champ.base.request.BaseRequest;
 import com.champ.base.request.GetUserBanksRequest;
 import com.champ.base.request.GetUserTransactionRequest;
+import com.champ.base.request.SaveTransactionRequest;
 import com.champ.base.response.CategoryResponse;
 import com.champ.base.response.GetUserBankResponse;
 import com.champ.base.response.GetUserPropertiesResponse;
 import com.champ.base.response.GetUserTransactionResponse;
 import com.champ.base.response.PaymentModeResponse;
+import com.champ.base.response.SaveTransactionResponse;
 import com.champ.base.response.SignupResponse;
 import com.champ.core.enums.ApiResponseCodes;
 import com.champ.core.exception.MonetorServiceException;
@@ -122,6 +124,21 @@ public class MonetorWebServiceController {
 		CategoryResponse response = null;
 		if (validationService.validateBaseCall(request)) {
 			response = apiService.getCategories(request);
+		} else {
+			LOG.info("Invalid Request");
+			throw new MonetorServiceException(ApiResponseCodes.INVALID_REQUEST);
+		}
+		LOG.info("Sending Response for getting categories for a user {}", response);
+		return response;
+	}
+
+	@RequestMapping(value = "/saveTransactions", produces = "application/json", method = RequestMethod.POST)
+	@ResponseBody
+	public SaveTransactionResponse saveUserTransaction(@RequestBody SaveTransactionRequest request) throws Exception {
+		LOG.info("Request Recieved for saving user transaction for a user {}", request);
+		SaveTransactionResponse response = null;
+		if (validationService.validateSaveTransactionCall(request)) {
+			response = apiService.saveUserTransactions(request);
 		} else {
 			LOG.info("Invalid Request");
 			throw new MonetorServiceException(ApiResponseCodes.INVALID_REQUEST);

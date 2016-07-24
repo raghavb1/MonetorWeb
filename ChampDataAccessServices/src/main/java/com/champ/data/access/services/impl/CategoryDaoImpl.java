@@ -17,12 +17,15 @@ public class CategoryDaoImpl implements ICategoryDao {
 	@Autowired
 	IEntityDao entityDao;
 
+	@SuppressWarnings("unchecked")
 	public List<Category> getAllCategories() {
-		return entityDao.findAll(Category.class);
+		Query query = entityDao.getEntityManager()
+				.createQuery("Select category from Category category where category.userDefined = false");
+		return (List<Category>) query.getResultList();
 	}
 
-	public void saveOrUpdateCategory(Category category) {
-		entityDao.saveOrUpdate(category);
+	public Category saveOrUpdateCategory(Category category) {
+		return entityDao.saveOrUpdate(category);
 	}
 
 	public Category findCategoryById(Long id) {
@@ -35,10 +38,23 @@ public class CategoryDaoImpl implements ICategoryDao {
 				.createQuery("Select category.name from Category category where category.name = :name");
 		query.setParameter("name", name);
 		List<String> names = (List<String>) query.getResultList();
-		if (names.size() > 0) {
+		if (names != null && names.size() > 0) {
 			return false;
 		} else {
 			return true;
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public Category findCategoryByName(String name) {
+		Query query = entityDao.getEntityManager()
+				.createQuery("Select category from Category category where category.name = :name");
+		query.setParameter("name", name);
+		List<Category> categories = (List<Category>) query.getResultList();
+		if (categories != null && categories.size() > 0) {
+			return categories.get(0);
+		} else {
+			return null;
 		}
 	}
 

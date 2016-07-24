@@ -58,13 +58,13 @@
 				<div class="row" style="margin-top: 30px">
 					<div class="col-lg-12">
 						<table
-								class="table table-striped table-bordered bootstrap-datatable datatable"
+								class="table table-striped table-bordered"
 								id="submerchantTable">
 							<thead>
 								<tr>
-									<th>SubMerchant Code</th>
-									<th>Merchant</th>
-									<th>Action</th>
+									<th width="300px">SubMerchant Code</th>
+									<th width="400px">Merchant</th>
+									<th width="300px">Action</th>
 								</tr>
 							</thead>
 							<tbody>

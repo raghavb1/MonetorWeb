@@ -15,6 +15,7 @@ public class UserTransaction {
 	private String paymentMode;
 	private String category;
 	private String merchantIconUrl;
+	private Long transactionId;
 
 	public String getMerchantIconUrl() {
 		return merchantIconUrl;
@@ -78,6 +79,14 @@ public class UserTransaction {
 
 	public void setCategory(String category) {
 		this.category = category;
+	}
+
+	public Long getTransactionId() {
+		return transactionId;
+	}
+
+	public void setTransactionId(Long transactionId) {
+		this.transactionId = transactionId;
 	}
 
 }

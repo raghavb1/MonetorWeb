@@ -18,7 +18,8 @@ public enum Property {
 	MESSAGES_FETCH_PERIOD								("messages.fetch.period","15"),
 	GMAIL_SCOPE											("gmail.scope","https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile"),
 	SUBMERCHANT_FETCH_LIMIT								("submerchant.fetch.limit","500"),
-	USER_DISPLAY_BANKS									("user~display.banks","ICICI,HDFC");
+	USER_DISPLAY_BANKS									("user~display.banks","ICICI,HDFC"),
+	ALLOWED_FILE_EXTENSIONS								("allowed.file.extensions","xls,csv");
 
 	private String name;
 
