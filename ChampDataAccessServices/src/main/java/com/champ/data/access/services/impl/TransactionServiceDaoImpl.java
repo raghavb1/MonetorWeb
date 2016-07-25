@@ -39,23 +39,21 @@ public class TransactionServiceDaoImpl implements ITransactionServiceDao {
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<AppUserTransaction> getUserTransactions(String email, String token) {
+	public List<AppUserTransaction> getUserTransactions(Long id) {
 		Query query = entityDao.getEntityManager().createQuery(
 				"Select transaction from AppUserTransaction transaction left join fetch transaction.subMerchant subMerchant "
 						+ "left join fetch transaction.bank bank left join fetch transaction.paymentMode paymentMode "
 						+ "left join fetch transaction.category category "
-						+ "left join fetch transaction.user user where user.email =:email and user.token =:token order by transaction.transactionDate DESC");
-		query.setParameter("email", email);
-		query.setParameter("token", token);
+						+ "left join fetch transaction.user user where user.id =:id order by transaction.transactionDate DESC");
+		query.setParameter("id", id);
 		return (List<AppUserTransaction>) query.getResultList();
 	}
 
 	@SuppressWarnings("unchecked")
-	public AppUserTransaction getUserTransactionByIdAndEmail(String email, String token, Long id) {
+	public AppUserTransaction getTransactionByUserId(Long userId, Long id) {
 		Query query = entityDao.getEntityManager().createQuery(
-				"Select transaction from AppUserTransaction transaction left join fetch transaction.user user where user.email =:email and user.token =:token and transaction.id =:id");
-		query.setParameter("email", email);
-		query.setParameter("token", token);
+				"Select transaction from AppUserTransaction transaction left join fetch transaction.user user where user.id =:userId and transaction.id =:id");
+		query.setParameter("userId", userId);
 		query.setParameter("id", id);
 		List<AppUserTransaction> transactions = (List<AppUserTransaction>) query.getResultList();
 		if (transactions != null && transactions.size() > 0) {
@@ -66,14 +64,13 @@ public class TransactionServiceDaoImpl implements ITransactionServiceDao {
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<AppUserTransaction> getUserCreatedTransactions(String email, String token) {
+	public List<AppUserTransaction> getUserCreatedTransactions(Long id) {
 		Query query = entityDao.getEntityManager().createQuery(
 				"Select transaction from AppUserTransaction transaction left join fetch transaction.subMerchant subMerchant "
 						+ "left join fetch transaction.bank bank left join fetch transaction.paymentMode paymentMode "
 						+ "left join fetch transaction.category category "
-						+ "left join fetch transaction.user user where user.email =:email and user.token =:token and transaction.userDefined = true order by transaction.transactionDate DESC");
-		query.setParameter("email", email);
-		query.setParameter("token", token);
+						+ "left join fetch transaction.user user where user.id =:id and transaction.userDefined = true order by transaction.transactionDate DESC");
+		query.setParameter("id", id);
 		return (List<AppUserTransaction>) query.getResultList();
 	}
 }

@@ -11,9 +11,9 @@ public interface ITransactionServiceDao {
 
 	public boolean checkUserTransaction(Double amount, Date transactionDate, String submerchantCode, String email);
 
-	public List<AppUserTransaction> getUserTransactions(String email, String token);
+	public List<AppUserTransaction> getUserTransactions(Long id);
 
-	public AppUserTransaction getUserTransactionByIdAndEmail(String email, String token, Long id);
+	public AppUserTransaction getTransactionByUserId(Long userId, Long id);
 	
-	public List<AppUserTransaction> getUserCreatedTransactions(String email, String token);
+	public List<AppUserTransaction> getUserCreatedTransactions(Long id);
 }

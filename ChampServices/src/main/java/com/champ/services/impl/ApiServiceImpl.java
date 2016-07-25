@@ -143,11 +143,18 @@ public class ApiServiceImpl implements IApiService {
 
 	public GetUserTransactionResponse getTransactionsForUser(GetUserTransactionRequest request) throws Exception {
 		GetUserTransactionResponse response = new GetUserTransactionResponse();
+		AppUser user = appUserService.authenticateUser(request.getEmail(), request.getToken());
+		if (user == null) {
+			throw new MonetorServiceException(ApiResponseCodes.USER_NOT_FOUND);
+		} else if (user.getSynced() != null && !user.getSynced()) {
+			response.setSynced(false);
+			return response;
+		}
 		List<AppUserTransaction> transactions = null;
 		if (request.getUserCreatedTransaction()) {
-			transactions = transactionService.getUserCreatedTransactions(request.getEmail(), request.getToken());
+			transactions = transactionService.getUserCreatedTransactions(user.getId());
 		} else {
-			transactions = transactionService.getUserTransactions(request.getEmail(), request.getToken());
+			transactions = transactionService.getUserTransactions(user.getId());
 		}
 		if (transactions != null && transactions.size() > 0) {
 			response.setUserTransactions(converterService.getUserTransactions(transactions));
@@ -188,6 +195,10 @@ public class ApiServiceImpl implements IApiService {
 
 	public SaveTransactionResponse saveUserTransactions(SaveTransactionRequest request) throws Exception {
 		SaveTransactionResponse response = new SaveTransactionResponse();
+		AppUser user = appUserService.authenticateUser(request.getEmail(), request.getToken());
+		if(user == null){
+			throw new MonetorServiceException(ApiResponseCodes.USER_NOT_FOUND);
+		}
 		List<FailedTransactionDto> failureList = new ArrayList<FailedTransactionDto>();
 		if (request.getTransactions() != null && request.getTransactions().size() > 0) {
 			for (UserMappedTransaction transaction : request.getTransactions()) {
@@ -199,8 +210,7 @@ public class ApiServiceImpl implements IApiService {
 					}
 					AppUserTransaction newTransaction = null;
 					if (transaction.getTransactionId() != null) {
-						newTransaction = transactionService.getUserTransactionByIdAndEmail(request.getEmail(),
-								request.getToken(), transaction.getTransactionId());
+						newTransaction = transactionService.getTransactionByUserId(user.getId(), transaction.getTransactionId());
 						if (newTransaction == null) {
 							LOG.error("Transaction not found for user {} and id {}", request.getEmail(),
 									transaction.getTransactionId());
