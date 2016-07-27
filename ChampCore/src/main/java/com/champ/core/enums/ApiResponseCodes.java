@@ -10,7 +10,9 @@ public enum ApiResponseCodes {
 	CACHE_NOT_FOUND										("CNF", "Cache not found"),
 	USER_TRANSACTIONS_NOT_FOUND							("UTNF", "User Transactions Not Found"),
 	INTERNAL_SERVER_ERROR								("ISE", "Internal Server Error. Contact Support team for resolution"),
-	GMAIL_EMAIL_NOT_FOUND								("ENF", "User Email Not found from gmail");
+	GMAIL_EMAIL_NOT_FOUND								("ENF", "User Email Not found from gmail"),
+	USER_PROPERTIES_NOT_FOUND							("UPNF", "User Properties Not Found"),
+	TRANSACTION_NOT_FOUND								("TNF", "Transactions Not Found");
 
 	private String code;
 	private String message;

@@ -5,9 +5,10 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
 @Entity
-@Table(name = "merchant")
+@Table(name = "merchant", uniqueConstraints = @UniqueConstraint(columnNames = { "name" }))
 public class Merchant extends BaseEntity {
 
 	/**
@@ -15,7 +16,7 @@ public class Merchant extends BaseEntity {
 	 */
 	private static final long serialVersionUID = -3688065146276834301L;
 
-	@Column(name = "name")
+	@Column(name = "name", unique = true)
 	private String name;
 
 	@Column(name = "image_url", nullable = true)

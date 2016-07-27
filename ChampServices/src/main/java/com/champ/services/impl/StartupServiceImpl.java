@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import com.champ.core.cache.AppUserBankCache;
 import com.champ.core.cache.AppUserCache;
 import com.champ.core.cache.BankCache;
+import com.champ.core.cache.CategoryCache;
 import com.champ.core.cache.PaymentModeCache;
 import com.champ.core.cache.PropertyMapCache;
 import com.champ.core.cache.SubMerchantCache;
@@ -25,7 +26,9 @@ import com.champ.core.dto.SearchQueryParserDto;
 import com.champ.core.entity.AppUser;
 import com.champ.core.entity.Bank;
 import com.champ.core.entity.BankPaymentMode;
+import com.champ.core.entity.Category;
 import com.champ.core.entity.Parser;
+import com.champ.core.entity.PaymentMode;
 import com.champ.core.entity.SearchQuery;
 import com.champ.core.entity.SubMerchant;
 import com.champ.core.enums.Property;
@@ -36,8 +39,11 @@ import com.champ.services.IAppUserBankService;
 import com.champ.services.IAppUserService;
 import com.champ.services.IBankPaymentModeService;
 import com.champ.services.IBankService;
+import com.champ.services.ICategoryService;
+import com.champ.services.IPaymentModeService;
 import com.champ.services.IStartupService;
 import com.champ.services.ISubMerchantService;
+import com.champ.services.ITransactionService;
 import com.champ.services.executors.TransactionExecutorService;
 import com.champ.services.executors.TransactionExecutorServiceWrapper;
 import com.champ.services.thread.CacheReloadThread;
@@ -65,10 +71,22 @@ public class StartupServiceImpl implements IStartupService, ApplicationContextAw
 	IBankService bankService;
 
 	@Autowired
-	TransactionExecutorServiceWrapper transactionExecutorServiceWrapper;
+	ISubMerchantService subMerchantService;
 
 	@Autowired
-	ISubMerchantService subMerchantService;
+	IPaymentModeService paymentModeService;
+
+	@Autowired
+	ICategoryService categoryService;
+
+	@Autowired
+	private ITransactionService transactionService;
+
+	@Autowired
+	private IGmailClientService gmailClient;
+
+	private TransactionExecutorServiceWrapper transactionExecutorServiceWrapper = TransactionExecutorServiceWrapper
+			.getInstance();
 
 	private ScheduledExecutorService cacheReloadExecutor = Executors.newScheduledThreadPool(2);
 
@@ -82,6 +100,8 @@ public class StartupServiceImpl implements IStartupService, ApplicationContextAw
 		loadPaymentModeCache();
 		loadAppUserBanks();
 		loadBankCache();
+		loadPaymentModeCache();
+		loadCategories();
 		loadTransactionExecutor();
 		loadSubmerchantsCache();
 		scheduleCacheReload();
@@ -89,35 +109,34 @@ public class StartupServiceImpl implements IStartupService, ApplicationContextAw
 	}
 
 	public void loadProperties() {
-		LOG.info("Loading properties from Enum");
+		LOG.info("Loading Shipping Properties Cache ....");
 		PropertyMapCache cache = new PropertyMapCache();
-		for (Property p : Property.values()) {
-			cache.addProperty(p.getName(), p.getValue());
+		LOG.info("Loading Properties from Property Enumeration....");
+		for (Property property : Property.values()) {
+			cache.putProperty(property.getName(), property.getValue());
 		}
-		LOG.info("Loaded properties from enum. Getting properties from DB");
-		List<com.champ.core.entity.Property> dbProperties = propertyDao.getAllProperties();
-		if (dbProperties != null && dbProperties.size() > 0) {
-			for (com.champ.core.entity.Property property : dbProperties) {
-				cache.addProperty(property.getName(), property.getValue());
-			}
+		LOG.info("Shipping Properties Successfully Loaded from Enumeration");
+		LOG.info("Loading Shipping Properties from Database....");
+		List<com.champ.core.entity.Property> properties = propertyDao.getAllProperties();
+		for (com.champ.core.entity.Property property : properties) {
+			cache.putProperty(property.getName(), property.getValue());
 		}
-		LOG.info("Loaded properties from DB");
+		LOG.info("Shipping Properties Successfully loaded from Database.");
 		CacheManager.getInstance().setCache(cache);
-		LOG.info("Loaded properties.");
-
+		LOG.info("Shipping Properties Loaded SUCCESSFULLY !");
 	}
 
 	public void loadPaymentModeCache() {
-		LOG.info("Loading Bank Payment Mode Cache");
-		List<BankPaymentMode> bankPaymentModes = bankPaymentModeService.getAllBankPaymentModes();
+		LOG.info("Loading Payment Mode Cache");
+		List<PaymentMode> paymentModes = paymentModeService.getAllPaymentModes();
 		PaymentModeCache paymentModeCache = new PaymentModeCache();
-		if (bankPaymentModes != null && bankPaymentModes.size() > 0) {
-			for (BankPaymentMode bankPaymentMode : bankPaymentModes) {
-				paymentModeCache.addPaymentMode(bankPaymentMode);
+		if (paymentModes != null && paymentModes.size() > 0) {
+			for (PaymentMode paymentMode : paymentModes) {
+				paymentModeCache.addPaymentMode(paymentMode);
 			}
 		}
 		CacheManager.getInstance().setCache(paymentModeCache);
-		LOG.info("Loaded Bank Payment Mode Cache");
+		LOG.info("Loaded Payment Mode Cache");
 	}
 
 	public void loadAppUserBanks() {
@@ -210,21 +229,21 @@ public class StartupServiceImpl implements IStartupService, ApplicationContextAw
 	public void loadTransactionExecutor() {
 		LOG.info("Loading Transaction Executor Service");
 		if (transactionExecutorServiceWrapper.getTransactionExecutorService() != null) {
-			if (transactionExecutorServiceWrapper.getTransactionExecutorService()
-					.getCoreThreadPoolSize() != CacheManager.getInstance().getCache(PropertyMapCache.class)
-							.getPropertyInteger(Property.TRANSACTION_EXECUTOR_CORE_THREAD_POOL)
-					|| transactionExecutorServiceWrapper.getTransactionExecutorService()
-							.getBlockingQueueSize() != CacheManager.getInstance().getCache(PropertyMapCache.class)
-									.getPropertyInteger(Property.TRANSACTION_EXECUTOR_BLOCKING_QUEUE_SIZE)
-					|| transactionExecutorServiceWrapper.getTransactionExecutorService()
-							.getMaxThreadPoolSize() != CacheManager.getInstance().getCache(PropertyMapCache.class)
-									.getPropertyInteger(Property.TRANSACTION_EXECUTOR_MAX_THREAD_POOL)
-					|| transactionExecutorServiceWrapper.getTransactionExecutorService()
-							.getKeepAliveTime() != CacheManager.getInstance().getCache(PropertyMapCache.class)
-									.getPropertyInteger(Property.TRANSACTION_EXECUTOR_KEEP_ALIVE_TIME)
-					|| transactionExecutorServiceWrapper.getTransactionExecutorService()
-							.getRejectionWaitingTime() != CacheManager.getInstance().getCache(PropertyMapCache.class)
-									.getPropertyInteger(Property.TRANSACTION_EXECUTOR_REJECTION_TIME)) {
+			if (!transactionExecutorServiceWrapper.getTransactionExecutorService().getCoreThreadPoolSize()
+					.equals(CacheManager.getInstance().getCache(PropertyMapCache.class)
+							.getPropertyInteger(Property.TRANSACTION_EXECUTOR_CORE_THREAD_POOL))
+					|| !transactionExecutorServiceWrapper.getTransactionExecutorService().getBlockingQueueSize()
+							.equals(CacheManager.getInstance().getCache(PropertyMapCache.class)
+									.getPropertyInteger(Property.TRANSACTION_EXECUTOR_BLOCKING_QUEUE_SIZE))
+					|| !transactionExecutorServiceWrapper.getTransactionExecutorService().getMaxThreadPoolSize()
+							.equals(CacheManager.getInstance().getCache(PropertyMapCache.class)
+									.getPropertyInteger(Property.TRANSACTION_EXECUTOR_MAX_THREAD_POOL))
+					|| !transactionExecutorServiceWrapper.getTransactionExecutorService().getKeepAliveTime()
+							.equals(CacheManager.getInstance().getCache(PropertyMapCache.class)
+									.getPropertyInteger(Property.TRANSACTION_EXECUTOR_KEEP_ALIVE_TIME))
+					|| !transactionExecutorServiceWrapper.getTransactionExecutorService().getRejectionWaitingTime()
+							.equals(CacheManager.getInstance().getCache(PropertyMapCache.class)
+									.getPropertyInteger(Property.TRANSACTION_EXECUTOR_REJECTION_TIME))) {
 				LOG.info("Loading new Transaction Executor Service as there is change in configuration");
 				TransactionExecutorService transactionExecutorService = new TransactionExecutorService(
 						CacheManager.getInstance().getCache(PropertyMapCache.class)
@@ -251,6 +270,10 @@ public class StartupServiceImpl implements IStartupService, ApplicationContextAw
 			}
 		} else {
 			LOG.info("No Transaction Executor Service exists. Creating a new one....");
+			transactionExecutorServiceWrapper.setAppUserBankService(appUserBankService);
+			transactionExecutorServiceWrapper.setAppUserService(appUserService);
+			transactionExecutorServiceWrapper.setGmailClient(gmailClient);
+			transactionExecutorServiceWrapper.setTransactionService(transactionService);
 			TransactionExecutorService transactionExecutorService = new TransactionExecutorService(
 					CacheManager.getInstance().getCache(PropertyMapCache.class)
 							.getPropertyInteger(Property.TRANSACTION_EXECUTOR_CORE_THREAD_POOL),
@@ -290,6 +313,19 @@ public class StartupServiceImpl implements IStartupService, ApplicationContextAw
 
 	public ApplicationContext getApplicationContext() {
 		return applicationContext;
+	}
+
+	public void loadCategories() {
+		LOG.info("Loading categories cache");
+		List<Category> categories = categoryService.getAllCategories();
+		CategoryCache cache = new CategoryCache();
+		if (categories != null && categories.size() > 0) {
+			for (Category category : categories) {
+				cache.addCategory(category);
+			}
+		}
+		CacheManager.getInstance().setCache(cache);
+		LOG.info("Loaded categories Cache");
 	}
 
 }

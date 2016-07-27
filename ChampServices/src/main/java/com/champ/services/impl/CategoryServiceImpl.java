@@ -22,8 +22,8 @@ public class CategoryServiceImpl implements ICategoryService {
 		return categoryDao.getAllCategories();
 	}
 
-	public void saveOrUpdateCategory(Category category) {
-		categoryDao.saveOrUpdateCategory(category);
+	public Category saveOrUpdateCategory(Category category) {
+		return categoryDao.saveOrUpdateCategory(category);
 	}
 
 	public Category findCategoryById(Long id) {
@@ -32,6 +32,10 @@ public class CategoryServiceImpl implements ICategoryService {
 
 	public boolean checkCategory(String name) {
 		return categoryDao.checkCategory(name);
+	}
+
+	public Category findCategoryByName(String name) {
+		return categoryDao.findCategoryByName(name);
 	}
 
 }

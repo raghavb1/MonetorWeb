@@ -33,6 +33,7 @@ public class CategoryController {
 			Category persistedCategory = categoryService.findCategoryById(category.getId());
 			persistedCategory.setCategoryImageUrl(category.getCategoryImageUrl());
 			persistedCategory.setName(category.getName());
+			persistedCategory.setColor(category.getColor());
 			categoryService.saveOrUpdateCategory(persistedCategory);
 		}else{
 			categoryService.saveOrUpdateCategory(category);	

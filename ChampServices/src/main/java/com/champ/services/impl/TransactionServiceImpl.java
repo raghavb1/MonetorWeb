@@ -56,12 +56,24 @@ public class TransactionServiceImpl implements ITransactionService {
 		}
 	}
 
-	public List<AppUserTransaction> getUserTransactions(String email) {
-		return transactionServiceDao.getUserTransactions(email);
-	}
-
 	public boolean checkUserTransaction(Double amount, Date transactionDate, String submerchantCode, String email) {
 		return transactionServiceDao.checkUserTransaction(amount, transactionDate, submerchantCode, email);
+	}
+
+	public List<AppUserTransaction> getUserTransactions(Long id) {
+		return transactionServiceDao.getUserTransactions(id);
+	}
+
+	public AppUserTransaction getTransactionByUserId(Long userId, Long id) {
+		return transactionServiceDao.getTransactionByUserId(userId, id);
+	}
+
+	public AppUserTransaction saveTransaction(AppUserTransaction transaction) {
+		return transactionServiceDao.saveUserTransaction(transaction);
+	}
+
+	public List<AppUserTransaction> getUserCreatedTransactions(Long id) {
+		return transactionServiceDao.getUserCreatedTransactions(id);
 	}
 
 }

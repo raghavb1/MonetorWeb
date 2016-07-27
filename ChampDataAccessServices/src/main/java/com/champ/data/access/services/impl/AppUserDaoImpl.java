@@ -45,12 +45,18 @@ public class AppUserDaoImpl implements IAppUserDao {
 		return (List<AppUser>) entityDao.findAll(AppUser.class);
 	}
 
-	public AppUser authenticateUser(String email, String password) {
+	@SuppressWarnings("unchecked")
+	public AppUser authenticateUser(String email, String token) {
 		Query query = entityDao.getEntityManager()
-				.createQuery("Select user from AppUser user where user.email =:email and user.password =:password");
+				.createQuery("Select user from AppUser user where user.email =:email and user.token =:token");
 		query.setParameter("email", email);
-		query.setParameter("password", password);
-		return (AppUser) query.getSingleResult();
+		query.setParameter("token", token);
+		List<AppUser> users = (List<AppUser>) query.getResultList();
+		if(users != null && users.size() > 0){
+			return users.get(0);
+		}else{
+			return null;
+		}
 	}
 
 }

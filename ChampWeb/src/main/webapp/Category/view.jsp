@@ -31,6 +31,7 @@
 								<tr>
 									<th>Category Name</th>
 									<th>Category Image Url</th>
+									<th>Color</th>
 									<th>Action</th>
 								</tr>
 							</thead>
@@ -39,7 +40,7 @@
 									<tr>
 										<td>${category.name}</td>
 										<td>${category.categoryImageUrl}
-											
+											<td>${category.color}</td>	
 											<td><a
 												href='<c:url value="/Category/edit/${category.id}"></c:url>'
 												class="btn btn-primary">Edit</a> 

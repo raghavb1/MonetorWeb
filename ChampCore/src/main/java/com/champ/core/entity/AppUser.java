@@ -50,6 +50,9 @@ public class AppUser extends BaseEntity {
 	@Column(name = "image")
 	private String image;
 
+	@Column(name = "synced")
+	private Boolean synced = false;
+
 	public Date getTokenExpiryTime() {
 		return tokenExpiryTime;
 	}
@@ -120,6 +123,14 @@ public class AppUser extends BaseEntity {
 
 	public void setImage(String image) {
 		this.image = image;
+	}
+
+	public Boolean getSynced() {
+		return synced;
+	}
+
+	public void setSynced(Boolean synced) {
+		this.synced = synced;
 	}
 
 	@Override

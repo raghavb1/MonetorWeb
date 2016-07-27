@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import com.champ.core.entity.BankPaymentMode;
 import com.champ.services.IBankPaymentModeService;
 import com.champ.services.IBankService;
+import com.champ.services.IPaymentModeService;
 
 @Controller
 @RequestMapping("/BankPayment")
@@ -24,10 +25,14 @@ public class BankPaymentController {
 	@Autowired
 	IBankService bankService;
 
+	@Autowired
+	IPaymentModeService	paymentModeService;
+	
 	@RequestMapping("/create")
 	public String addPaymentMode(ModelMap map) {
 		map.put("bankPaymentMode", new BankPaymentMode());
 		map.put("banks", bankService.getAllBanks());
+		map.put("paymentModes", paymentModeService.getAllPaymentModes());
 		return "BankPayment/create";
 	}
 
@@ -61,6 +66,7 @@ public class BankPaymentController {
 		BankPaymentMode bankPaymentMode = bankPaymentModeService.findBankPaymentModeById(id);
 		map.put("bankPaymentMode", bankPaymentMode);
 		map.put("banks", bankService.getAllBanks());
+		map.put("paymentModes", paymentModeService.getAllPaymentModes());
 		map.put("edit", "true");
 		return "BankPayment/create";
 	}

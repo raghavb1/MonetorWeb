@@ -45,6 +45,9 @@
 						<li><a class="submenu"
 							href="<c:url value="/Merchant/view" />"><i class="fa fa-edit"></i><span
 								class="hidden-sm text"> View/Edit</span> </a></li>
+						<li><a class="submenu"
+							href="<c:url value="/Bulk/Merchant/create" />"><i class="fa fa-folder"></i><span
+								class="hidden-sm text"> Bulk Upload</span> </a></li>		
 					</ul></li>
 			</security:authorize>
 			<security:authorize access="hasAnyRole('ROLE_ADMIN')">
@@ -77,7 +80,7 @@
 			</security:authorize>
 			<security:authorize access="hasAnyRole('ROLE_ADMIN')">
 				<li><a class="dropmenu" href="#"><i class="fa fa-briefcase"></i><span
-						class="hidden-sm text">Payment Modes</span> <span
+						class="hidden-sm text">Bank Pay Modes</span> <span
 						class="chevron closed"></span> </a>
 					<ul>
 						<li><a class="submenu"
@@ -114,6 +117,19 @@
 							href="<c:url value="/Parser/create" />"><i class="fa fa-plus"></i><span
 								class="hidden-sm text"> Create</span> </a></li>
 						<li><a class="submenu" href="<c:url value="/Parser/view" />"><i
+								class="fa fa-edit"></i><span class="hidden-sm text">
+									View/Edit</span> </a></li>
+					</ul></li>
+			</security:authorize>
+			<security:authorize access="hasAnyRole('ROLE_ADMIN')">
+				<li><a class="dropmenu" href="#"><i class="fa fa-folder-open"></i><span
+						class="hidden-sm text">Payment Modes</span> <span
+						class="chevron closed"></span> </a>
+					<ul>
+						<li><a class="submenu"
+							href="<c:url value="/PaymentMode/create" />"><i class="fa fa-plus"></i><span
+								class="hidden-sm text"> Create</span> </a></li>
+						<li><a class="submenu" href="<c:url value="/PaymentMode/view" />"><i
 								class="fa fa-edit"></i><span class="hidden-sm text">
 									View/Edit</span> </a></li>
 					</ul></li>

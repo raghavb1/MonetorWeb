@@ -47,6 +47,7 @@ public class UserTransactionThread implements Runnable {
 							LOG.info("Banks not found for user {}", user.getEmail());
 						}
 						user.setLastSyncedOn(DateUtils.addToDate(new Date(), TimeUnit.SECONDS, -10));
+						user.setSynced(true);
 						appUserService.saveOrUpdateUser(user);
 					} catch (Exception e) {
 						LOG.error("Error while getting transactions for user {}", user.getEmail(), e);

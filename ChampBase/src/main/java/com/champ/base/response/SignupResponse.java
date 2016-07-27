@@ -11,6 +11,8 @@ public class SignupResponse extends BaseResponse {
 	private static final long serialVersionUID = 52232429289735226L;
 	private String email;
 	private String token;
+	private String name;
+	private String image;
 
 	public String getEmail() {
 		return email;
@@ -28,9 +30,25 @@ public class SignupResponse extends BaseResponse {
 		this.token = token;
 	}
 
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getImage() {
+		return image;
+	}
+
+	public void setImage(String image) {
+		this.image = image;
+	}
+
 	@Override
 	public String toString() {
-		return "SignupResponse [email=" + email + ", token=" + token + ", toString()=" + super.toString() + "]";
+		return "SignupResponse [email=" + email + ", token=" + token + ", name=" + name + ", image=" + image + "]";
 	}
 
 }

@@ -9,8 +9,11 @@ public interface ITransactionServiceDao {
 
 	public AppUserTransaction saveUserTransaction(AppUserTransaction transaction);
 
-	public List<AppUserTransaction> getUserTransactions(String email);
+	public boolean checkUserTransaction(Double amount, Date transactionDate, String submerchantCode, String email);
 
-	public boolean checkUserTransaction(Double amount, Date transactionDate, String submerchantCode,
-			String email);
+	public List<AppUserTransaction> getUserTransactions(Long id);
+
+	public AppUserTransaction getTransactionByUserId(Long userId, Long id);
+	
+	public List<AppUserTransaction> getUserCreatedTransactions(Long id);
 }

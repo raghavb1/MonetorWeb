@@ -64,7 +64,7 @@ public class App
 
 	public MessageListResponse getMessageList(String userId, String searchQuery, String accessToken) throws URISyntaxException, ClientProtocolException, IOException{
 
-		URI uri = urlGenerator.getMessageListURL(userId, searchQuery, accessToken);
+		URI uri = urlGenerator.getMessageListURL(userId, searchQuery, accessToken, null);
 		StringBuffer sb = helper.executeGet(uri.toString());
 		return (MessageListResponse) helper.getObjectFromJsonString(sb, MessageListResponse.class);
 	}

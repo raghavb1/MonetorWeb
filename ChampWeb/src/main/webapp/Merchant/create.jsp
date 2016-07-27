@@ -100,7 +100,7 @@
 							</div>
 								<div class="col-lg-4">
 									<label>Image Url : </label> <input type="text" name="imageUrl"
-										value="${merchant.imageUrl}" class="form-control required">
+										value="${merchant.imageUrl}" class="form-control">
 								</div>
 							<div class="col-lg-4">
 								<label>Category : </label> <select name="category.id"
