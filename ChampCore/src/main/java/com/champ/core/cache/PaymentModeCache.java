@@ -14,6 +14,7 @@ public class PaymentModeCache {
 
 	private List<PaymentModeDto> paymentModes = new ArrayList<PaymentModeDto>();
 	private Map<String, PaymentMode> nameToPaymentMode = new HashMap<String, PaymentMode>();
+	private Map<String, String> extractedStringToPaymentMode = new HashMap<String, String>();
 
 	public void addPaymentMode(PaymentMode paymentMode) {
 		PaymentModeDto dto = new PaymentModeDto();
@@ -23,11 +24,19 @@ public class PaymentModeCache {
 		nameToPaymentMode.put(paymentMode.getName(), paymentMode);
 	}
 
+	public void addPaymentModeToExtractedString(String extractedString, String paymentMode) {
+		extractedStringToPaymentMode.put(extractedString, paymentMode);
+	}
+
 	public List<PaymentModeDto> getPaymentModes() {
 		return paymentModes;
 	}
 
 	public PaymentMode getPaymentModeByName(String name) {
 		return nameToPaymentMode.get(name);
+	}
+
+	public String getPaymentModeByExtractedString(String extractedString) {
+		return extractedStringToPaymentMode.get(extractedString);
 	}
 }

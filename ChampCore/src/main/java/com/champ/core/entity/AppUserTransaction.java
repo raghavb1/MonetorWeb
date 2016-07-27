@@ -42,9 +42,8 @@ public class AppUserTransaction extends BaseEntity {
 	@JoinColumn(name = "bank_id", referencedColumnName = "id", nullable = true)
 	private Bank bank;
 
-	@ManyToOne
-	@JoinColumn(name = "pay_mode_id", referencedColumnName = "id", nullable = true)
-	private PaymentMode paymentMode;
+	@Column(name = "payment_mode_string")
+	private String paymentModeString;
 
 	@ManyToOne
 	@JoinColumn(name = "user_id", referencedColumnName = "id")
@@ -108,12 +107,12 @@ public class AppUserTransaction extends BaseEntity {
 		this.bank = bank;
 	}
 
-	public PaymentMode getPaymentMode() {
-		return paymentMode;
+	public String getPaymentModeString() {
+		return paymentModeString;
 	}
 
-	public void setPaymentMode(PaymentMode paymentMode) {
-		this.paymentMode = paymentMode;
+	public void setPaymentModeString(String paymentModeString) {
+		this.paymentModeString = paymentModeString;
 	}
 
 	public AppUser getUser() {

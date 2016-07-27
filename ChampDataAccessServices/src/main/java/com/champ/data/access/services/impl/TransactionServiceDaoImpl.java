@@ -69,7 +69,7 @@ public class TransactionServiceDaoImpl implements ITransactionServiceDao {
 				"Select transaction from AppUserTransaction transaction left join fetch transaction.subMerchant subMerchant "
 						+ "left join fetch transaction.bank bank left join fetch transaction.paymentMode paymentMode "
 						+ "left join fetch transaction.category category "
-						+ "left join fetch transaction.user user where user.id =:id and transaction.userDefined = true order by transaction.transactionDate DESC");
+						+ "left join fetch transaction.user user where user.id =:id and transaction.userDefined = true");
 		query.setParameter("id", id);
 		return (List<AppUserTransaction>) query.getResultList();
 	}

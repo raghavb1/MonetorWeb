@@ -14,15 +14,12 @@ import org.springframework.stereotype.Service;
 import com.champ.base.dto.UserMappedTransaction;
 import com.champ.base.response.UserBank;
 import com.champ.base.response.UserTransaction;
-import com.champ.core.cache.BankCache;
 import com.champ.core.cache.PaymentModeCache;
 import com.champ.core.cache.PropertyMapCache;
 import com.champ.core.entity.AppUser;
 import com.champ.core.entity.AppUserTransaction;
 import com.champ.core.entity.Bank;
-import com.champ.core.entity.BankPaymentMode;
 import com.champ.core.entity.Category;
-import com.champ.core.entity.PaymentMode;
 import com.champ.core.entity.SubMerchant;
 import com.champ.core.enums.Property;
 import com.champ.core.utility.CacheManager;
@@ -126,8 +123,15 @@ public class ConverterServiceImpl implements IConverterService {
 			if (transaction.getCategory() != null) {
 				userTransaction.setCategory(transaction.getCategory().getName());
 			}
-			if (transaction.getPaymentMode() != null) {
-				userTransaction.setPaymentMode(transaction.getPaymentMode().getName());
+			if (transaction.getUserDefined()) {
+				userTransaction.setPaymentMode(transaction.getPaymentModeString());
+			} else {
+				PaymentModeCache cache = CacheManager.getInstance().getCache(PaymentModeCache.class);
+				if (cache != null
+						&& cache.getPaymentModeByExtractedString(transaction.getPaymentModeString()) != null) {
+					userTransaction
+							.setPaymentMode(cache.getPaymentModeByExtractedString(transaction.getPaymentModeString()));
+				}
 			}
 			userTransaction.setTransactionDate(transaction.getTransactionDate());
 			userTransactions.add(userTransaction);
@@ -139,11 +143,7 @@ public class ConverterServiceImpl implements IConverterService {
 		AppUserTransaction transaction = new AppUserTransaction();
 		transaction.setBank(bank);
 		transaction.setUser(user);
-		BankPaymentMode paymentMode = CacheManager.getInstance().getCache(BankCache.class)
-				.getPaymentModeByBankNameAndString(bank.getName(), dto.getPaymentModeString());
-		if (paymentMode != null) {
-			transaction.setPaymentMode(paymentMode.getPaymentMode());
-		}
+		transaction.setPaymentModeString(dto.getPaymentModeString());
 		SubMerchant subMerchant = subMerchantService.findSubMerchantByCode(dto.getSubMerchant());
 		if (subMerchant == null) {
 			subMerchant = new SubMerchant();
@@ -166,12 +166,7 @@ public class ConverterServiceImpl implements IConverterService {
 		}
 		AppUserTransaction newTransaction = new AppUserTransaction();
 		newTransaction.setUser(user);
-		PaymentMode paymentMode = CacheManager.getInstance().getCache(PaymentModeCache.class)
-				.getPaymentModeByName(transaction.getPaymentMode());
-		if (paymentMode == null) {
-			return null;
-		}
-		newTransaction.setPaymentMode(paymentMode);
+		newTransaction.setPaymentModeString(transaction.getPaymentMode());
 		SubMerchant subMerchant = subMerchantService.findSubMerchantByCode(transaction.getSubmerchantCode());
 		if (subMerchant == null) {
 			subMerchant = new SubMerchant();

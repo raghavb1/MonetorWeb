@@ -100,7 +100,6 @@ public class StartupServiceImpl implements IStartupService, ApplicationContextAw
 		loadPaymentModeCache();
 		loadAppUserBanks();
 		loadBankCache();
-		loadPaymentModeCache();
 		loadCategories();
 		loadTransactionExecutor();
 		loadSubmerchantsCache();
@@ -133,6 +132,15 @@ public class StartupServiceImpl implements IStartupService, ApplicationContextAw
 		if (paymentModes != null && paymentModes.size() > 0) {
 			for (PaymentMode paymentMode : paymentModes) {
 				paymentModeCache.addPaymentMode(paymentMode);
+			}
+		}
+		List<BankPaymentMode> bankPaymentModes = bankPaymentModeService.getAllBankPaymentModes();
+		if (bankPaymentModes != null && bankPaymentModes.size() > 0) {
+			for (BankPaymentMode bankPaymentMode : bankPaymentModes) {
+				if (bankPaymentMode.getPaymentMode() != null) {
+					paymentModeCache.addPaymentModeToExtractedString(bankPaymentMode.getExtractedString(),
+							bankPaymentMode.getPaymentMode().getName());
+				}
 			}
 		}
 		CacheManager.getInstance().setCache(paymentModeCache);
