@@ -65,15 +65,13 @@ public class BankDaoImpl implements IBankDao {
 	}
 
 	@SuppressWarnings("unchecked")
-	public Parser getParserForSearchQuery(Long id) {
+	public List<Parser> getParserForSearchQuery(Long id) {
 		Query query = entityDao.getEntityManager().createQuery(
 				"Select parser from Parser parser left join fetch parser.searchQuery query where query.id =:id");
 		query.setParameter("id", id);
 		List<Parser> parsers = (List<Parser>) query.getResultList();
-		if (parsers != null && parsers.size() > 0) {
-			return parsers.get(0);
-		}
-		return null;
+
+		return parsers;
 	}
 
 	public List<Bank> getAllEnabledBanks() {

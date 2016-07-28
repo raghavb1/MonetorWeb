@@ -48,7 +48,7 @@ public class BankServiceImpl implements IBankService {
 		return bankDao.getSearchQueryForBank(id);
 	}
 
-	public Parser getParserForSearchQuery(Long id) {
+	public List<Parser> getParserForSearchQuery(Long id) {
 		return bankDao.getParserForSearchQuery(id);
 	}
 

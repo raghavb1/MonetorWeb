@@ -212,8 +212,10 @@ public class StartupServiceImpl implements IStartupService, ApplicationContextAw
 				List<SearchQuery> searchQueries = bankService.getSearchQueryForBank(bank.getId());
 				if (searchQueries != null && searchQueries.size() > 0) {
 					for (SearchQuery query : searchQueries) {
-						Parser parser = bankService.getParserForSearchQuery(query.getId());
-						cache.addBank(bank, new SearchQueryParserDto(query, parser));
+						List<Parser> parsers = bankService.getParserForSearchQuery(query.getId());
+						for(Parser parser: parsers){
+							cache.addBank(bank, new SearchQueryParserDto(query, parser));
+						}
 					}
 				} else {
 					LOG.info("No Search Queries found for Bank {}. Adding only bank in cache", bank.getName());

@@ -22,7 +22,7 @@ public interface IBankDao {
 
 	public List<SearchQuery> getSearchQueryForBank(Long id);
 
-	public Parser getParserForSearchQuery(Long id);
+	public List<Parser> getParserForSearchQuery(Long id);
 	
 	public List<Bank> getAllEnabledBanks();
 }
