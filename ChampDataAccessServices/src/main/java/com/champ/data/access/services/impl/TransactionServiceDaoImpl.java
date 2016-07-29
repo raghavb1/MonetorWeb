@@ -42,7 +42,7 @@ public class TransactionServiceDaoImpl implements ITransactionServiceDao {
 	public List<AppUserTransaction> getUserTransactions(Long id) {
 		Query query = entityDao.getEntityManager().createQuery(
 				"Select transaction from AppUserTransaction transaction left join fetch transaction.subMerchant subMerchant "
-						+ "left join fetch transaction.bank bank left join fetch transaction.paymentMode paymentMode "
+						+ "left join fetch transaction.bank bank "
 						+ "left join fetch transaction.category category "
 						+ "left join fetch transaction.user user where user.id =:id and transaction.userDefined = false");
 		query.setParameter("id", id);
@@ -67,7 +67,7 @@ public class TransactionServiceDaoImpl implements ITransactionServiceDao {
 	public List<AppUserTransaction> getUserCreatedTransactions(Long id) {
 		Query query = entityDao.getEntityManager().createQuery(
 				"Select transaction from AppUserTransaction transaction left join fetch transaction.subMerchant subMerchant "
-						+ "left join fetch transaction.bank bank left join fetch transaction.paymentMode paymentMode "
+						+ "left join fetch transaction.bank bank "
 						+ "left join fetch transaction.category category "
 						+ "left join fetch transaction.user user where user.id =:id and transaction.userDefined = true");
 		query.setParameter("id", id);
