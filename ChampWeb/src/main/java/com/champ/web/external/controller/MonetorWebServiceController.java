@@ -13,7 +13,9 @@ import com.champ.base.request.BaseRequest;
 import com.champ.base.request.GetUserBanksRequest;
 import com.champ.base.request.GetUserTransactionRequest;
 import com.champ.base.request.RegisterUserRequest;
+import com.champ.base.request.SaveMessageRequest;
 import com.champ.base.request.SaveTransactionRequest;
+import com.champ.base.response.BaseResponse;
 import com.champ.base.response.CategoryResponse;
 import com.champ.base.response.GetUserBankResponse;
 import com.champ.base.response.GetUserPropertiesResponse;
@@ -144,7 +146,22 @@ public class MonetorWebServiceController {
 			LOG.info("Invalid Request");
 			throw new MonetorServiceException(ApiResponseCodes.INVALID_REQUEST);
 		}
-		LOG.info("Sending Response for getting categories for a user {}", response);
+		LOG.info("Sending Response for saving transactions for a user {}", response);
+		return response;
+	}
+	
+	@RequestMapping(value = "/saveMessages", produces = "application/json", method = RequestMethod.POST)
+	@ResponseBody
+	public BaseResponse saveUserMessages(@RequestBody SaveMessageRequest request) throws Exception {
+		LOG.info("Request Recieved for saving user messages for a user {}", request);
+		BaseResponse response = null;
+		if (validationService.validateSaveMessageCall(request)) {
+//			response = apiService.saveUserTransactions(request);
+		} else {
+			LOG.info("Invalid Request");
+			throw new MonetorServiceException(ApiResponseCodes.INVALID_REQUEST);
+		}
+		LOG.info("Sending Response for saving messages for a user {}", response);
 		return response;
 	}
 }

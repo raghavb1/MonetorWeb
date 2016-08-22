@@ -1,11 +1,13 @@
 package com.champ.services.impl;
 
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import com.champ.base.request.BaseRequest;
 import com.champ.base.request.GetUserBanksRequest;
 import com.champ.base.request.GetUserTransactionRequest;
 import com.champ.base.request.RegisterUserRequest;
+import com.champ.base.request.SaveMessageRequest;
 import com.champ.base.request.SaveTransactionRequest;
 import com.champ.core.cache.PropertyMapCache;
 import com.champ.core.enums.Property;
@@ -72,6 +74,9 @@ public class ValidationServiceImpl implements IValidationService {
 		if (request.getMobile() == null || request.getToken() == null) {
 			return false;
 		}
+		if (CollectionUtils.isEmpty(request.getTransactions())) {
+			return false;
+		}
 		return true;
 	}
 
@@ -85,6 +90,24 @@ public class ValidationServiceImpl implements IValidationService {
 			return false;
 		}
 		if (request.getMobile() == null || request.getCountryCode() == null) {
+			return false;
+		}
+		return true;
+	}
+
+	public boolean validateSaveMessageCall(SaveMessageRequest request) {
+		if (request == null) {
+			return false;
+		}
+		String authenticationKey = CacheManager.getInstance().getCache(PropertyMapCache.class)
+				.getPropertyString(Property.API_AUTHENTICATION_KEY);
+		if (!authenticationKey.equals(request.getAuthenticationKey())) {
+			return false;
+		}
+		if (request.getMobile() == null || request.getToken() == null) {
+			return false;
+		}
+		if (CollectionUtils.isEmpty(request.getMessages())) {
 			return false;
 		}
 		return true;
