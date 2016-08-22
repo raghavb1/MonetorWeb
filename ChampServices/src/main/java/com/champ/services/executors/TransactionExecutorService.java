@@ -9,11 +9,9 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.champ.core.entity.AppUser;
-import com.champ.gmail.api.client.IGmailClientService;
-import com.champ.services.IAppUserBankService;
-import com.champ.services.IAppUserService;
-import com.champ.services.ITransactionService;
+import com.champ.core.entity.AppUserLinkedAccount;
+import com.champ.services.IAppUserLinkedAccountService;
+import com.champ.services.IGmailClientService;
 import com.champ.services.thread.UserTransactionThread;
 
 public class TransactionExecutorService {
@@ -25,10 +23,8 @@ public class TransactionExecutorService {
 	private Integer rejectionWaitingTime;
 	private Integer blockingQueueSize;
 	private static volatile boolean executeTask = true;
-	private ITransactionService transactionService;
 	private IGmailClientService gmailClient;
-	private IAppUserBankService appUserBankService;
-	private IAppUserService appUserService;
+	private IAppUserLinkedAccountService appUserLinkedAccountService;
 
 	private static final Logger LOG = LoggerFactory.getLogger(TransactionExecutorService.class);
 
@@ -48,10 +44,10 @@ public class TransactionExecutorService {
 		}
 	}
 
-	public void executeTask(List<AppUser> users) {
+	public void executeTask(List<AppUserLinkedAccount> linkedAccounts) {
 		if (executeTask) {
-			executorService.execute(new UserTransactionThread(users, gmailClient, transactionService,
-					appUserBankService, appUserService));
+			executorService
+					.execute(new UserTransactionThread(linkedAccounts, gmailClient, appUserLinkedAccountService));
 		}
 	}
 
@@ -60,18 +56,16 @@ public class TransactionExecutorService {
 	}
 
 	public TransactionExecutorService(Integer coreThreadPoolSize, Integer maxThreadPoolSize, Integer keepAliveTime,
-			final Integer rejectionWaitingTime, Integer blockingQueueSize, ITransactionService transactionService,
-			IGmailClientService gmailClient, IAppUserBankService appUserBankService, IAppUserService appUserService) {
+			final Integer rejectionWaitingTime, Integer blockingQueueSize, IGmailClientService gmailClient,
+			IAppUserLinkedAccountService appUserLinkedAccountService) {
 		super();
 		this.coreThreadPoolSize = coreThreadPoolSize;
 		this.maxThreadPoolSize = maxThreadPoolSize;
 		this.keepAliveTime = keepAliveTime;
 		this.rejectionWaitingTime = rejectionWaitingTime;
 		this.blockingQueueSize = blockingQueueSize;
-		this.transactionService = transactionService;
 		this.gmailClient = gmailClient;
-		this.appUserBankService = appUserBankService;
-		this.appUserService = appUserService;
+		this.appUserLinkedAccountService = appUserLinkedAccountService;
 		executorService = new ThreadPoolExecutor(coreThreadPoolSize, maxThreadPoolSize, keepAliveTime,
 				TimeUnit.MILLISECONDS, new ArrayBlockingQueue<Runnable>(blockingQueueSize));
 		executorService.setRejectedExecutionHandler(new RejectedExecutionHandler() {

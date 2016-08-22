@@ -24,10 +24,10 @@ public class AppUserBankDaoImpl implements IAppUserBankDao {
 	private final static Logger LOG = LoggerFactory.getLogger(AppUserBankDaoImpl.class);
 
 	@SuppressWarnings("unchecked")
-	public List<Bank> getBanksForUser(String email, String token) {
+	public List<Bank> getBanksForUser(String mobile, String token) {
 		Query query = entityDao.getEntityManager().createQuery(
-				"Select appUserBank from AppUserBank appUserBank left join fetch appUserBank.user appUser where appUser.email =:email and appUser.token =:token");
-		query.setParameter("email", email);
+				"Select appUserBank from AppUserBank appUserBank left join fetch appUserBank.user appUser where appUser.mobile =:mobile and appUser.token =:token");
+		query.setParameter("mobile", mobile);
 		query.setParameter("token", token);
 		List<AppUserBank> appUserBanks = (List<AppUserBank>) query.getResultList();
 		try {

@@ -12,7 +12,7 @@ public interface ITransactionService {
 
 	public void saveUserTransactions(List<TransactionDTO> transactions, AppUser user, Bank bank);
 
-	public boolean checkUserTransaction(Double amount, Date transactionDate, String submerchantCode, String email);
+	public boolean checkUserTransaction(Double amount, Date transactionDate, String submerchantCode, String mobile);
 
 	public List<AppUserTransaction> getUserTransactions(Long id);
 

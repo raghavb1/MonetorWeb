@@ -32,32 +32,35 @@ public class TransactionServiceImpl implements ITransactionService {
 
 	public void saveUserTransactions(List<TransactionDTO> transactions, AppUser user, Bank bank) {
 		if (transactions != null && transactions.size() > 0) {
-			LOG.info("{} transactions found for user {}", transactions.size(), user.getEmail());
+			LOG.info("{} transactions found for user {}", transactions.size(), user.getMobile());
 			for (TransactionDTO dto : transactions) {
 				try {
 					if (transactionServiceDao.checkUserTransaction(dto.getAmount(), dto.getDate(), dto.getSubMerchant(),
-							user.getEmail())) {
+							user.getMobile())) {
 						AppUserTransaction transaction = null;
 						if (dto != null) {
 							transaction = converterService.getTransactionFromDto(dto, user, bank);
 						}
 						if (transaction != null) {
 							transactionServiceDao.saveUserTransaction(transaction);
+							LOG.info("Transaction saved {} ", dto);
 						} else {
 							LOG.info("DTO received null for string {} and bank {}", dto.getPaymentModeString(),
 									bank.getName());
 						}
+					} else {
+						LOG.info("Transaction already exists {} ", dto);
 					}
 				} catch (Exception e) {
-					LOG.error("Exception while saving transaction for user {}. Exception {}", user.getEmail(),
+					LOG.error("Exception while saving transaction for user {}. Exception {}", user.getMobile(),
 							e.getMessage());
 				}
 			}
 		}
 	}
 
-	public boolean checkUserTransaction(Double amount, Date transactionDate, String submerchantCode, String email) {
-		return transactionServiceDao.checkUserTransaction(amount, transactionDate, submerchantCode, email);
+	public boolean checkUserTransaction(Double amount, Date transactionDate, String submerchantCode, String mobile) {
+		return transactionServiceDao.checkUserTransaction(amount, transactionDate, submerchantCode, mobile);
 	}
 
 	public List<AppUserTransaction> getUserTransactions(Long id) {

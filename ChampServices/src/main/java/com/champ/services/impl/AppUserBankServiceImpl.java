@@ -19,8 +19,8 @@ public class AppUserBankServiceImpl implements IAppUserBankService {
 	@Autowired
 	IAppUserBankDao appUserBankDao;
 
-	public List<Bank> getBanksForUser(String email, String token) {
-		return appUserBankDao.getBanksForUser(email, token);
+	public List<Bank> getBanksForUser(String mobile, String token) {
+		return appUserBankDao.getBanksForUser(mobile, token);
 	}
 
 	public AppUserBank saveUserBank(AppUserBank appUserBank) {

@@ -1,4 +1,4 @@
-package com.champ.gmail.api.client.impl;
+package com.champ.services.impl;
 
 import java.io.IOException;
 import java.net.URI;
@@ -17,16 +17,22 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpGet;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
-import com.champ.core.entity.AppUser;
+import com.champ.core.cache.PropertyMapCache;
+import com.champ.core.entity.AppUserLinkedAccount;
+import com.champ.core.entity.Bank;
 import com.champ.core.entity.Parser;
 import com.champ.core.entity.SearchQuery;
+import com.champ.core.enums.Property;
+import com.champ.core.utility.CacheManager;
 import com.champ.core.utility.DateUtils;
 import com.champ.core.utility.DateUtils.TimeUnit;
-import com.champ.data.access.services.IAppUserDao;
-import com.champ.gmail.api.client.IGmailClientService;
+import com.champ.data.access.services.IAppUserLinkedAccountDao;
 import com.champ.gmail.api.dto.TransactionDTO;
 import com.champ.gmail.api.response.GmailTokensResponse;
 import com.champ.gmail.api.response.MessageListResponse;
@@ -35,6 +41,10 @@ import com.champ.gmail.api.response.RefreshTokenResponse;
 import com.champ.gmail.api.service.Convertor;
 import com.champ.gmail.api.service.Helper;
 import com.champ.gmail.api.service.URLGeneratorService;
+import com.champ.services.IAppUserBankService;
+import com.champ.services.IGmailClientService;
+import com.champ.services.ITransactionService;
+import com.champ.services.thread.SaveTransactionThread;
 
 @Service
 public class GmailClientServiceImpl implements IGmailClientService {
@@ -49,7 +59,18 @@ public class GmailClientServiceImpl implements IGmailClientService {
 	Convertor convertor;
 
 	@Autowired
-	IAppUserDao appUserDao;
+	IAppUserLinkedAccountDao appUserLinkedAccountDao;
+
+	@Autowired
+	ThreadPoolTaskExecutor taskExecutor;
+
+	@Autowired
+	ITransactionService transactionService;
+
+	@Autowired
+	IAppUserBankService appUserBankService;
+
+	private static final Logger LOG = LoggerFactory.getLogger(GmailClientServiceImpl.class);
 
 	public String getAuthURL() throws URISyntaxException {
 		return urlGenerator.getAuthURL().toString();
@@ -72,7 +93,7 @@ public class GmailClientServiceImpl implements IGmailClientService {
 		return ((RefreshTokenResponse) helper.getObjectFromJsonString(sb, RefreshTokenResponse.class));
 	}
 
-	public MessageListResponse getMessageList(String userId, String searchQuery, String accessToken,String pageToken)
+	public MessageListResponse getMessageList(String userId, String searchQuery, String accessToken, String pageToken)
 			throws URISyntaxException, ClientProtocolException, IOException {
 		URI uri = urlGenerator.getMessageListURL(userId, searchQuery, accessToken, pageToken);
 		StringBuffer sb = helper.executeGet(uri.toString());
@@ -109,45 +130,65 @@ public class GmailClientServiceImpl implements IGmailClientService {
 		if (m.find()) {
 			transaction = convertor.getTransactionDTOFromMessage(m, dateFormat);
 		}
-		if(transaction !=null && transaction.getDate() == null){
+		if (transaction != null && transaction.getDate() == null) {
 			transaction.setDate(new Date(Long.parseLong(messageResponse.getInternalDate())));
 		}
 		return transaction;
 	}
 
 	@Transactional
-	public List<TransactionDTO> getMessages(AppUser user, SearchQuery searchQuery, Parser parser) throws Exception {
+	public List<TransactionDTO> getMessages(AppUserLinkedAccount account, SearchQuery searchQuery, Parser parser,
+			Bank bank) throws Exception {
+		long startTime = System.currentTimeMillis();
 		List<TransactionDTO> transactionDto = new ArrayList<TransactionDTO>();
-		String accessToken = user.getAccessToken();
-		if (DateUtils.isDatePassed(user.getGmailExpiryTime())) {
-			RefreshTokenResponse tokenResponse = refreshAccessToken(user.getRefreshToken());
+		String accessToken = account.getAccessToken();
+		RefreshTokenResponse tokenResponse = null;
+		if (DateUtils.isDatePassed(account.getGmailExpiryTime())) {
+			tokenResponse = refreshAccessToken(account.getRefreshToken());
 			if (tokenResponse == null) {
 				return null;
 			}
 			accessToken = tokenResponse.getAccess_token();
-			user.setAccessToken(accessToken);
-			user.setGmailExpiryTime(DateUtils.addToDate(new Date(), TimeUnit.SECONDS, tokenResponse.getExpires_in()));
-			user = appUserDao.saveOrUpdateUser(user);
 		}
 		String pageToken = null;
-		do{
-			MessageListResponse list = getMessageList(user.getEmail(), searchQuery.getSearchQuery(), accessToken, pageToken);
+		do {
+			MessageListResponse list = getMessageList(account.getEmail(), searchQuery.getSearchQuery(), accessToken,
+					pageToken);
 			if (list != null && list.getMessages() != null && list.getMessages().size() > 0) {
+				int batchSize = CacheManager.getInstance().getCache(PropertyMapCache.class)
+						.getPropertyInteger(Property.TRANSACTION_BATCH_SIZE);
 				for (MessageListResponse.Message message : list.getMessages()) {
-					MessageResponse messageResponse = getMessage(user.getEmail(), message.getId(), accessToken);
+					MessageResponse messageResponse = getMessage(account.getEmail(), message.getId(), accessToken);
 					TransactionDTO dto = getTransactionDetailsFromEmail(messageResponse,
 							StringEscapeUtils.unescapeJava(parser.getTemplate()),
 							StringEscapeUtils.unescapeJava(parser.getDateFormat()));
 					if (dto != null) {
 						transactionDto.add(dto);
 					}
+					if (transactionDto.size() == batchSize) {
+						LOG.info("Assigning Save transaction thread to executor");
+						taskExecutor.submit(new SaveTransactionThread(account.getUser(), transactionDto, bank,
+								transactionService, appUserBankService));
+						transactionDto = new ArrayList<TransactionDTO>();
+					}
+				}
+				if (transactionDto != null && transactionDto.size() > 0) {
+					taskExecutor.submit(new SaveTransactionThread(account.getUser(), transactionDto, bank,
+							transactionService, appUserBankService));
 				}
 				pageToken = list.getNextPageToken();
-			}else{
+			} else {
 				pageToken = null;
 			}
-		}while(pageToken != null);
-
+		} while (pageToken != null);
+		if (tokenResponse != null) {
+			account.setAccessToken(accessToken);
+			account.setGmailExpiryTime(
+					DateUtils.addToDate(new Date(), TimeUnit.SECONDS, tokenResponse.getExpires_in()));
+			account = appUserLinkedAccountDao.saveOrUpdateLinkedAccount(account);
+		}
+		long endTime = System.currentTimeMillis();
+		LOG.info("Time taken to get messages from Gmail {} ms", (endTime - startTime));
 		return transactionDto;
 	}
 

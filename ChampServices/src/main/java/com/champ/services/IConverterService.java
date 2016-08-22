@@ -6,6 +6,7 @@ import com.champ.base.dto.UserMappedTransaction;
 import com.champ.base.response.UserBank;
 import com.champ.base.response.UserTransaction;
 import com.champ.core.entity.AppUser;
+import com.champ.core.entity.AppUserLinkedAccount;
 import com.champ.core.entity.AppUserTransaction;
 import com.champ.core.entity.Bank;
 import com.champ.gmail.api.dto.TransactionDTO;
@@ -14,7 +15,7 @@ import com.champ.gmail.api.response.UserInfoResponse;
 
 public interface IConverterService {
 
-	public AppUser getUserFromRequest(GmailTokensResponse request, UserInfoResponse userInfo, AppUser user);
+	public AppUserLinkedAccount getUserFromRequest(GmailTokensResponse request, UserInfoResponse userInfo, AppUser user, AppUserLinkedAccount linkedAccount);
 
 	public List<UserBank> getUserBankFromBanks(List<Bank> banks);
 

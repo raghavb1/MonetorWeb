@@ -52,14 +52,14 @@ public class MonetorServiceAspect {
 			response.setSuccess(false);
 			response.setCode(mse.getCode());
 			response.setMessage(mse.getMessage());
-			LOG.error("Error processing request from email {}", request.getEmail(), mse);
+			LOG.error("Error processing request from email {}", request.getMobile(), mse);
 		} catch (Exception ex) {
 			Class target = ((MethodSignature) pjp.getSignature()).getReturnType();
 			response = (BaseResponse) target.newInstance();
 			response.setSuccess(false);
 			response.setCode(ApiResponseCodes.INTERNAL_SERVER_ERROR.getCode());
 			response.setMessage(ApiResponseCodes.INTERNAL_SERVER_ERROR.getMessage());
-			LOG.error("Error processing request from email {}", request.getEmail(), ex);
+			LOG.error("Error processing request from email {}", request.getMobile(), ex);
 		}
 		return response;
 	}

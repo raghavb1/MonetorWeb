@@ -16,21 +16,21 @@ public class AppUserBankCache {
 
 	private static final String separator = "~";
 
-	public void addAppUserBank(String email, String token, List<Bank> banks) {
-		emailToBanks.put(email, banks);
-		appUserBanks.put(email + separator + token, banks);
+	public void addAppUserBank(String mobile, String token, List<Bank> banks) {
+		emailToBanks.put(mobile, banks);
+		appUserBanks.put(mobile + separator + token, banks);
 	}
 
-	public List<Bank> getBanksForUserByEmailAndToken(String email, String token) {
-		return appUserBanks.get(email + separator + token);
+	public List<Bank> getBanksForUserByMobileAndToken(String mobile, String token) {
+		return appUserBanks.get(mobile + separator + token);
 	}
 
-	public List<Bank> getBanksForUserByEmail(String email) {
-		return emailToBanks.get(email);
+	public List<Bank> getBanksForUserByMobile(String mobile) {
+		return emailToBanks.get(mobile);
 	}
 
 	public void updateBankToUser(AppUser user, Bank bank) {
-		emailToBanks.get(user.getEmail()).add(bank);
-		appUserBanks.get(user.getEmail() + separator + user.getToken()).add(bank);
+		emailToBanks.get(user.getMobile()).add(bank);
+		appUserBanks.get(user.getMobile() + separator + user.getToken()).add(bank);
 	}
 }

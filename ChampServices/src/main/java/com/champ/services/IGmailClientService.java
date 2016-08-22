@@ -1,4 +1,4 @@
-package com.champ.gmail.api.client;
+package com.champ.services;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -7,7 +7,8 @@ import java.util.List;
 
 import org.apache.http.client.ClientProtocolException;
 
-import com.champ.core.entity.AppUser;
+import com.champ.core.entity.AppUserLinkedAccount;
+import com.champ.core.entity.Bank;
 import com.champ.core.entity.Parser;
 import com.champ.core.entity.SearchQuery;
 import com.champ.gmail.api.dto.TransactionDTO;
@@ -35,6 +36,6 @@ public interface IGmailClientService {
 	public TransactionDTO getTransactionDetailsFromEmail(MessageResponse messageResponse, String pattern, String dateFormat)
 			throws ParseException;
 
-	public List<TransactionDTO> getMessages(AppUser user, SearchQuery query, Parser parser) throws Exception;
+	public List<TransactionDTO> getMessages(AppUserLinkedAccount account, SearchQuery query, Parser parser, Bank bank) throws Exception;
 
 }

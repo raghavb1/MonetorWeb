@@ -17,20 +17,20 @@ public class AppUserDaoImpl implements IAppUserDao {
 	@Autowired
 	IEntityDao entityDao;
 
-	public AppUser getUserByEmail(String email) {
+	public AppUser getUserByMobile(String mobile) {
 		Query query = entityDao.getEntityManager()
-				.createQuery("Select user from AppUser user where user.email =:email");
-		query.setParameter("email", email);
+				.createQuery("Select user from AppUser user where user.mobile =:mobile");
+		query.setParameter("mobile", mobile);
 		return (AppUser) query.getSingleResult();
 	}
 
 	@SuppressWarnings("unchecked")
-	public boolean checkUser(String email) {
+	public boolean checkUser(String mobile) {
 		Query query = entityDao.getEntityManager()
-				.createQuery("Select user.email from AppUser user where user.email = :email");
-		query.setParameter("email", email);
-		List<String> emails = (List<String>) query.getResultList();
-		if (emails.size() > 0) {
+				.createQuery("Select user.mobile from AppUser user where user.mobile =:mobile");
+		query.setParameter("mobile", mobile);
+		List<String> mobiles = (List<String>) query.getResultList();
+		if (mobiles.size() > 0) {
 			return false;
 		} else {
 			return true;
@@ -46,10 +46,10 @@ public class AppUserDaoImpl implements IAppUserDao {
 	}
 
 	@SuppressWarnings("unchecked")
-	public AppUser authenticateUser(String email, String token) {
+	public AppUser authenticateUser(String mobile, String token) {
 		Query query = entityDao.getEntityManager()
-				.createQuery("Select user from AppUser user where user.email =:email and user.token =:token");
-		query.setParameter("email", email);
+				.createQuery("Select user from AppUser user where user.mobile =:mobile and user.token =:token");
+		query.setParameter("mobile", mobile);
 		query.setParameter("token", token);
 		List<AppUser> users = (List<AppUser>) query.getResultList();
 		if(users != null && users.size() > 0){

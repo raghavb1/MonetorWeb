@@ -5,38 +5,39 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.CollectionUtils;
 
 import com.champ.core.cache.PropertyMapCache;
-import com.champ.core.entity.AppUser;
+import com.champ.core.entity.AppUserLinkedAccount;
 import com.champ.core.enums.Property;
 import com.champ.core.utility.CacheManager;
-import com.champ.services.IAppUserService;
+import com.champ.services.IAppUserLinkedAccountService;
 import com.champ.services.executors.TransactionExecutorServiceWrapper;
 
 public class UserBatchThread implements Runnable {
 
-	private IAppUserService appUserService;
+	private IAppUserLinkedAccountService appUserLinkedAccountService;
 	private TransactionExecutorServiceWrapper transactionExecutorServiceWrapper;
 
 	private static final Logger LOG = LoggerFactory.getLogger(UserBatchThread.class);
 
 	public void run() {
-		List<AppUser> users = appUserService.getAllUsers();
-		if (users != null && users.size() > 0) {
-			LOG.info("Users found for splitting and getting transactions");
+		List<AppUserLinkedAccount> linkedAccounts = appUserLinkedAccountService.getAllLinkedAccounts();
+		if (!CollectionUtils.isEmpty(linkedAccounts)) {
+			LOG.info("Linked Accounts found for splitting and getting transactions");
 			int batchSize = CacheManager.getInstance().getCache(PropertyMapCache.class)
 					.getPropertyInteger(Property.TRANSACTION_FETCH_USER_BATCH);
-			List<AppUser> userBatch = new ArrayList<AppUser>();
-			for (AppUser user : users) {
-				userBatch.add(user);
-				if (userBatch.size() == batchSize) {
-					transactionExecutorServiceWrapper.getTransactionExecutorService().executeTask(userBatch);
-					userBatch = new ArrayList<AppUser>();
+			List<AppUserLinkedAccount> accountBatch = new ArrayList<AppUserLinkedAccount>();
+			for (AppUserLinkedAccount account : linkedAccounts) {
+				accountBatch.add(account);
+				if (accountBatch.size() == batchSize) {
+					transactionExecutorServiceWrapper.getTransactionExecutorService().executeTask(accountBatch);
+					accountBatch = new ArrayList<AppUserLinkedAccount>();
 				}
 			}
-			if (userBatch.size() > 0) {
-				LOG.info("Creating a thread with {} users", userBatch.size());
-				transactionExecutorServiceWrapper.getTransactionExecutorService().executeTask(userBatch);
+			if (accountBatch.size() > 0) {
+				LOG.info("Creating a thread with {} accounts", accountBatch.size());
+				transactionExecutorServiceWrapper.getTransactionExecutorService().executeTask(accountBatch);
 			}
 		} else {
 			LOG.info("No Users found to fetch messages");
@@ -44,10 +45,10 @@ public class UserBatchThread implements Runnable {
 	}
 
 	public UserBatchThread(TransactionExecutorServiceWrapper transactionExecutorServiceWrapper,
-			IAppUserService appUserService) {
+			IAppUserLinkedAccountService appUserLinkedAccountService) {
 		super();
 		this.transactionExecutorServiceWrapper = transactionExecutorServiceWrapper;
-		this.appUserService = appUserService;
+		this.appUserLinkedAccountService = appUserLinkedAccountService;
 	}
 
 }

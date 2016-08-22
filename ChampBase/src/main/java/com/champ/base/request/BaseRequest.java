@@ -11,17 +11,9 @@ public class BaseRequest implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = -582815177272317993L;
-	private String email;
+	private String mobile;
 	private String authenticationKey;
 	private String token;
-
-	public String getEmail() {
-		return email;
-	}
-
-	public void setEmail(String email) {
-		this.email = email;
-	}
 
 	public String getAuthenticationKey() {
 		return authenticationKey;
@@ -39,9 +31,28 @@ public class BaseRequest implements Serializable {
 		this.token = token;
 	}
 
+	public String getMobile() {
+		return mobile;
+	}
+
+	public void setMobile(String mobile) {
+		this.mobile = mobile;
+	}
+
+	public BaseRequest(String mobile, String authenticationKey, String token) {
+		super();
+		this.mobile = mobile;
+		this.authenticationKey = authenticationKey;
+		this.token = token;
+	}
+
+	public BaseRequest() {
+		super();
+	}
+
 	@Override
 	public String toString() {
-		return "BaseRequest [email=" + email + ", authenticationKey=" + authenticationKey + ", token=" + token + "]";
+		return "BaseRequest [mobile=" + mobile + ", authenticationKey=" + authenticationKey + ", token=" + token + "]";
 	}
 
 }

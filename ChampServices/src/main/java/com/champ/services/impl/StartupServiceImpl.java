@@ -34,12 +34,13 @@ import com.champ.core.entity.SubMerchant;
 import com.champ.core.enums.Property;
 import com.champ.core.utility.CacheManager;
 import com.champ.data.access.services.IPropertyDao;
-import com.champ.gmail.api.client.IGmailClientService;
 import com.champ.services.IAppUserBankService;
+import com.champ.services.IAppUserLinkedAccountService;
 import com.champ.services.IAppUserService;
 import com.champ.services.IBankPaymentModeService;
 import com.champ.services.IBankService;
 import com.champ.services.ICategoryService;
+import com.champ.services.IGmailClientService;
 import com.champ.services.IPaymentModeService;
 import com.champ.services.IStartupService;
 import com.champ.services.ISubMerchantService;
@@ -84,6 +85,9 @@ public class StartupServiceImpl implements IStartupService, ApplicationContextAw
 
 	@Autowired
 	private IGmailClientService gmailClient;
+
+	@Autowired
+	private IAppUserLinkedAccountService appUserLinkedAccountService;
 
 	private TransactionExecutorServiceWrapper transactionExecutorServiceWrapper = TransactionExecutorServiceWrapper
 			.getInstance();
@@ -155,12 +159,12 @@ public class StartupServiceImpl implements IStartupService, ApplicationContextAw
 		if (users != null && users.size() > 0) {
 			for (AppUser user : users) {
 				userCache.addUser(user);
-				List<Bank> banks = appUserBankService.getBanksForUser(user.getEmail(), user.getToken());
+				List<Bank> banks = appUserBankService.getBanksForUser(user.getMobile(), user.getToken());
 				if (banks != null) {
-					LOG.info("{} Banks found for user {}", banks.size(), user.getEmail());
-					cache.addAppUserBank(user.getEmail(), user.getToken(), banks);
+					LOG.info("{} Banks found for user {}", banks.size(), user.getMobile());
+					cache.addAppUserBank(user.getMobile(), user.getToken(), banks);
 				} else {
-					LOG.info("No banks found for user {}", user.getEmail());
+					LOG.info("No banks found for user {}", user.getMobile());
 				}
 			}
 		}
@@ -178,7 +182,8 @@ public class StartupServiceImpl implements IStartupService, ApplicationContextAw
 		cacheReloadExecutor.scheduleAtFixedRate(thread, initialDelay, reloadPeriod, TimeUnit.MINUTES);
 		if (CacheManager.getInstance().getCache(PropertyMapCache.class)
 				.getPropertyBoolean(Property.ENABLE_MESSAGE_TASK)) {
-			UserBatchThread userBatchThread = new UserBatchThread(transactionExecutorServiceWrapper, appUserService);
+			UserBatchThread userBatchThread = new UserBatchThread(transactionExecutorServiceWrapper,
+					appUserLinkedAccountService);
 			int frequency = CacheManager.getInstance().getCache(PropertyMapCache.class)
 					.getPropertyInteger(Property.MESSAGES_FETCH_PERIOD);
 			cacheReloadExecutor.scheduleAtFixedRate(userBatchThread, 0, frequency, TimeUnit.MINUTES);
@@ -213,7 +218,7 @@ public class StartupServiceImpl implements IStartupService, ApplicationContextAw
 				if (searchQueries != null && searchQueries.size() > 0) {
 					for (SearchQuery query : searchQueries) {
 						List<Parser> parsers = bankService.getParserForSearchQuery(query.getId());
-						for(Parser parser: parsers){
+						for (Parser parser : parsers) {
 							cache.addBank(bank, new SearchQueryParserDto(query, parser));
 						}
 					}
@@ -266,10 +271,8 @@ public class StartupServiceImpl implements IStartupService, ApplicationContextAw
 								.getPropertyInteger(Property.TRANSACTION_EXECUTOR_REJECTION_TIME),
 						CacheManager.getInstance().getCache(PropertyMapCache.class)
 								.getPropertyInteger(Property.TRANSACTION_EXECUTOR_BLOCKING_QUEUE_SIZE),
-						transactionExecutorServiceWrapper.getTransactionService(),
 						transactionExecutorServiceWrapper.getGmailClient(),
-						transactionExecutorServiceWrapper.getAppUserBankService(),
-						transactionExecutorServiceWrapper.getAppUserService());
+						transactionExecutorServiceWrapper.getAppUserLinkedAccountService());
 				transactionExecutorServiceWrapper.getTransactionExecutorService().shutDown();
 				transactionExecutorServiceWrapper.setTransactionExecutorService(transactionExecutorService);
 			} else {
@@ -281,7 +284,7 @@ public class StartupServiceImpl implements IStartupService, ApplicationContextAw
 		} else {
 			LOG.info("No Transaction Executor Service exists. Creating a new one....");
 			transactionExecutorServiceWrapper.setAppUserBankService(appUserBankService);
-			transactionExecutorServiceWrapper.setAppUserService(appUserService);
+			transactionExecutorServiceWrapper.setAppUserLinkedAccountService(appUserLinkedAccountService);
 			transactionExecutorServiceWrapper.setGmailClient(gmailClient);
 			transactionExecutorServiceWrapper.setTransactionService(transactionService);
 			TransactionExecutorService transactionExecutorService = new TransactionExecutorService(
@@ -295,10 +298,8 @@ public class StartupServiceImpl implements IStartupService, ApplicationContextAw
 							.getPropertyInteger(Property.TRANSACTION_EXECUTOR_REJECTION_TIME),
 					CacheManager.getInstance().getCache(PropertyMapCache.class)
 							.getPropertyInteger(Property.TRANSACTION_EXECUTOR_BLOCKING_QUEUE_SIZE),
-					transactionExecutorServiceWrapper.getTransactionService(),
 					transactionExecutorServiceWrapper.getGmailClient(),
-					transactionExecutorServiceWrapper.getAppUserBankService(),
-					transactionExecutorServiceWrapper.getAppUserService());
+					transactionExecutorServiceWrapper.getAppUserLinkedAccountService());
 			transactionExecutorServiceWrapper.setTransactionExecutorService(transactionExecutorService);
 		}
 	}

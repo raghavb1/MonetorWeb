@@ -18,12 +18,12 @@ public class AppUserServiceImpl implements IAppUserService {
 	@Autowired
 	IAppUserDao appUserDao;
 
-	public AppUser getUserByEmail(String email) {
-		return appUserDao.getUserByEmail(email);
+	public AppUser getUserByMobile(String mobile) {
+		return appUserDao.getUserByMobile(mobile);
 	}
 
-	public boolean checkUser(String email) {
-		return appUserDao.checkUser(email);
+	public boolean checkUser(String mobile) {
+		return appUserDao.checkUser(mobile);
 	}
 
 	public AppUser saveOrUpdateUser(AppUser user) {
@@ -34,8 +34,8 @@ public class AppUserServiceImpl implements IAppUserService {
 		return appUserDao.getAllUsers();
 	}
 
-	public AppUser authenticateUser(String email, String token) {
-		return appUserDao.authenticateUser(email, token);
+	public AppUser authenticateUser(String mobile, String token) {
+		return appUserDao.authenticateUser(mobile, token);
 	}
 
 }

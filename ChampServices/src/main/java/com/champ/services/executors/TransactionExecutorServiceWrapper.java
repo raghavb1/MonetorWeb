@@ -1,8 +1,8 @@
 package com.champ.services.executors;
 
-import com.champ.gmail.api.client.IGmailClientService;
 import com.champ.services.IAppUserBankService;
-import com.champ.services.IAppUserService;
+import com.champ.services.IAppUserLinkedAccountService;
+import com.champ.services.IGmailClientService;
 import com.champ.services.ITransactionService;
 
 public class TransactionExecutorServiceWrapper {
@@ -15,7 +15,7 @@ public class TransactionExecutorServiceWrapper {
 
 	private IAppUserBankService appUserBankService;
 
-	private IAppUserService appUserService;
+	private IAppUserLinkedAccountService appUserLinkedAccountService;
 
 	private TransactionExecutorService transactionExecutorService;
 
@@ -58,12 +58,12 @@ public class TransactionExecutorServiceWrapper {
 		this.appUserBankService = appUserBankService;
 	}
 
-	public IAppUserService getAppUserService() {
-		return appUserService;
+	public IAppUserLinkedAccountService getAppUserLinkedAccountService() {
+		return appUserLinkedAccountService;
 	}
 
-	public void setAppUserService(IAppUserService appUserService) {
-		this.appUserService = appUserService;
+	public void setAppUserLinkedAccountService(IAppUserLinkedAccountService appUserLinkedAccountService) {
+		this.appUserLinkedAccountService = appUserLinkedAccountService;
 	}
 
 	public TransactionExecutorService getTransactionExecutorService() {

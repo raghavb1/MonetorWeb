@@ -15,13 +15,12 @@ import com.champ.base.dto.UserMappedTransaction;
 import com.champ.base.response.UserBank;
 import com.champ.base.response.UserTransaction;
 import com.champ.core.cache.PaymentModeCache;
-import com.champ.core.cache.PropertyMapCache;
 import com.champ.core.entity.AppUser;
+import com.champ.core.entity.AppUserLinkedAccount;
 import com.champ.core.entity.AppUserTransaction;
 import com.champ.core.entity.Bank;
 import com.champ.core.entity.Category;
 import com.champ.core.entity.SubMerchant;
-import com.champ.core.enums.Property;
 import com.champ.core.utility.CacheManager;
 import com.champ.core.utility.DateUtils;
 import com.champ.core.utility.DateUtils.TimeUnit;
@@ -47,27 +46,25 @@ public class ConverterServiceImpl implements IConverterService {
 	@Autowired
 	ICategoryService categoryService;
 
-	public AppUser getUserFromRequest(GmailTokensResponse request, UserInfoResponse userInfo, AppUser user) {
-		if (user == null) {
-			user = new AppUser();
+	public AppUserLinkedAccount getUserFromRequest(GmailTokensResponse request, UserInfoResponse userInfo, AppUser user, AppUserLinkedAccount linkedAccount) {
+		if (linkedAccount == null) {
+			linkedAccount = new AppUserLinkedAccount();
 		}
 		if (userInfo.getEmail() == null || userInfo.getEmail().equals("")) {
 			return null;
 		}
-		user.setEmail(userInfo.getEmail());
-		user.setToken(generateTokenForUser());
-		user.setAccessToken(request.getAccessToken());
-		user.setRefreshToken(request.getRefreshToken());
-		user.setTokenExpiryTime(DateUtils.addToDate(new Date(), TimeUnit.SECONDS, CacheManager.getInstance()
-				.getCache(PropertyMapCache.class).getPropertyInteger(Property.TOKEN_EXPIRY_UPDATE_SECONDS)));
-		user.setName(userInfo.getName());
-		user.setImage(userInfo.getPicture());
+		linkedAccount.setEmail(userInfo.getEmail());
+		linkedAccount.setAccessToken(request.getAccessToken());
+		linkedAccount.setRefreshToken(request.getRefreshToken());
+		linkedAccount.setName(userInfo.getName());
+		linkedAccount.setImage(userInfo.getPicture());
 		if (request.getExpires_in() != null) {
-			user.setGmailExpiryTime(DateUtils.addToDate(new Date(), TimeUnit.SECONDS, request.getExpires_in()));
+			linkedAccount.setGmailExpiryTime(DateUtils.addToDate(new Date(), TimeUnit.SECONDS, request.getExpires_in()));
 		} else {
-			user.setGmailExpiryTime(new Date());
+			linkedAccount.setGmailExpiryTime(new Date());
 		}
-		return user;
+		linkedAccount.setUser(user);
+		return linkedAccount;
 	}
 
 	/**
@@ -160,7 +157,7 @@ public class ConverterServiceImpl implements IConverterService {
 	}
 
 	public AppUserTransaction getTransactionFromDto(UserMappedTransaction transaction, String email) {
-		AppUser user = appUserService.getUserByEmail(email);
+		AppUser user = appUserService.getUserByMobile(email);
 		if (user == null) {
 			return null;
 		}

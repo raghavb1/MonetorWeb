@@ -6,13 +6,13 @@ import com.champ.core.entity.AppUser;
 
 public interface IAppUserDao {
 
-	public AppUser getUserByEmail(String email);
+	public AppUser getUserByMobile(String mobile);
 
-	public boolean checkUser(String email);
+	public boolean checkUser(String mobile);
 
 	public AppUser saveOrUpdateUser(AppUser user);
 	
 	public List<AppUser> getAllUsers();
 	
-	public AppUser authenticateUser(String email, String password);
+	public AppUser authenticateUser(String mobile, String password);
 }

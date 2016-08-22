@@ -23,13 +23,13 @@ public class TransactionServiceDaoImpl implements ITransactionServiceDao {
 	}
 
 	@SuppressWarnings("unchecked")
-	public boolean checkUserTransaction(Double amount, Date transactionDate, String submerchantCode, String email) {
+	public boolean checkUserTransaction(Double amount, Date transactionDate, String submerchantCode, String mobile) {
 		Query query = entityDao.getEntityManager().createQuery(
-				"Select transaction from AppUserTransaction transaction left join fetch transaction.user user left join fetch transaction.subMerchant submerchant where transaction.amount =:amount and transaction.transactionDate =:date and user.email =:email and submerchant.code =:code");
+				"Select transaction from AppUserTransaction transaction left join fetch transaction.user user left join fetch transaction.subMerchant submerchant where transaction.amount =:amount and transaction.transactionDate =:date and user.mobile =:mobile and submerchant.code =:code");
 		query.setParameter("amount", amount);
 		query.setParameter("date", transactionDate);
 		query.setParameter("code", submerchantCode);
-		query.setParameter("email", email);
+		query.setParameter("mobile", mobile);
 		List<AppUserTransaction> transactions = query.getResultList();
 		if (transactions != null && transactions.size() > 0) {
 			return false;
