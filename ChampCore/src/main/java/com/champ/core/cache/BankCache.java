@@ -9,6 +9,7 @@ import com.champ.core.annotation.Cache;
 import com.champ.core.dto.SearchQueryParserDto;
 import com.champ.core.entity.Bank;
 import com.champ.core.entity.BankPaymentMode;
+import com.champ.core.entity.Parser;
 
 @Cache(name = "bankCache")
 public class BankCache {
@@ -16,6 +17,7 @@ public class BankCache {
 	private List<Bank> banks = new ArrayList<Bank>();
 	private Map<String, List<SearchQueryParserDto>> bankNameToSearchQuery = new HashMap<String, List<SearchQueryParserDto>>();
 	private Map<String, Map<String, BankPaymentMode>> bankNameToPaymentModes = new HashMap<String, Map<String, BankPaymentMode>>();
+	private Map<Long, List<Parser>> searchQueryToParsers = new HashMap<Long, List<Parser>>();
 
 	public void addBank(Bank bank, SearchQueryParserDto dto) {
 		banks.add(bank);
@@ -36,6 +38,10 @@ public class BankCache {
 		}
 	}
 
+	public void addParsersBySearchQuery(Long searchQueryId, List<Parser> parsers) {
+		searchQueryToParsers.put(searchQueryId, parsers);
+	}
+
 	public List<SearchQueryParserDto> getSearchQueryParserByBankName(String bankName) {
 		return bankNameToSearchQuery.get(bankName);
 	}
@@ -49,5 +55,9 @@ public class BankCache {
 			return bankNameToPaymentModes.get(bankName).get(extractedString.toUpperCase());
 		}
 		return null;
+	}
+
+	public List<Parser> getParsersBySearchQueryId(Long id) {
+		return searchQueryToParsers.get(id);
 	}
 }

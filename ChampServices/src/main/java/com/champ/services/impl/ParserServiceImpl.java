@@ -29,5 +29,4 @@ public class ParserServiceImpl implements IParserService {
 	public List<Parser> getAllParser() {
 		return (List<Parser>) parserDao.getAllParser();
 	}
-
 }

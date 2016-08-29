@@ -10,16 +10,20 @@ import javax.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import com.champ.base.dto.FailedTransactionDto;
+import com.champ.base.dto.MessageDto;
 import com.champ.base.dto.UserMappedTransaction;
 import com.champ.base.request.BaseRequest;
 import com.champ.base.request.GetUserBanksRequest;
 import com.champ.base.request.GetUserTransactionRequest;
 import com.champ.base.request.RegisterUserRequest;
+import com.champ.base.request.SaveMessageRequest;
 import com.champ.base.request.SaveTransactionRequest;
+import com.champ.base.response.BaseResponse;
 import com.champ.base.response.CategoryResponse;
 import com.champ.base.response.GetUserBankResponse;
 import com.champ.base.response.GetUserPropertiesResponse;
@@ -30,27 +34,37 @@ import com.champ.base.response.SaveTransactionResponse;
 import com.champ.base.response.SignupResponse;
 import com.champ.base.response.UserBank;
 import com.champ.core.cache.AppUserBankCache;
+import com.champ.core.cache.BankCache;
 import com.champ.core.cache.CategoryCache;
 import com.champ.core.cache.PaymentModeCache;
 import com.champ.core.cache.PropertyMapCache;
+import com.champ.core.cache.SearchQueryCache;
 import com.champ.core.dto.PropertyMap;
 import com.champ.core.entity.AppUser;
 import com.champ.core.entity.AppUserLinkedAccount;
 import com.champ.core.entity.AppUserTransaction;
 import com.champ.core.entity.Bank;
 import com.champ.core.entity.Category;
+import com.champ.core.entity.Parser;
+import com.champ.core.entity.SearchQuery;
 import com.champ.core.enums.ApiResponseCodes;
+import com.champ.core.enums.Medium;
+import com.champ.core.enums.Property;
 import com.champ.core.exception.MonetorServiceException;
 import com.champ.core.utility.CacheManager;
+import com.champ.gmail.api.dto.TransactionDTO;
 import com.champ.gmail.api.response.GmailTokensResponse;
 import com.champ.gmail.api.response.UserInfoResponse;
 import com.champ.services.IApiService;
+import com.champ.services.IAppUserBankService;
 import com.champ.services.IAppUserLinkedAccountService;
 import com.champ.services.IAppUserService;
 import com.champ.services.ICategoryService;
 import com.champ.services.IConverterService;
 import com.champ.services.IGmailClientService;
+import com.champ.services.ISmsService;
 import com.champ.services.ITransactionService;
+import com.champ.services.thread.SaveTransactionThread;
 import com.champ.services.thread.UserTransactionThread;
 
 @Service("apiService")
@@ -74,6 +88,15 @@ public class ApiServiceImpl implements IApiService {
 
 	@Autowired
 	private IAppUserLinkedAccountService appUserLinkedAccountService;
+
+	@Autowired
+	private ISmsService smsService;
+
+	@Autowired
+	private IAppUserBankService appUserBankService;
+
+	@Autowired
+	ThreadPoolTaskExecutor taskExecutor;
 
 	private static final Logger LOG = LoggerFactory.getLogger(ApiServiceImpl.class);
 
@@ -251,6 +274,57 @@ public class ApiServiceImpl implements IApiService {
 			response.setFailedTransactions(failureList);
 		}
 		return response;
+	}
+
+	public BaseResponse saveUserMessages(SaveMessageRequest request) throws Exception {
+		if (!CollectionUtils.isEmpty(request.getMessages())) {
+			AppUser appUser = appUserService.getUserByMobile(request.getMobile());
+			if (appUser == null) {
+				throw new MonetorServiceException(ApiResponseCodes.USER_NOT_FOUND);
+			}
+			BankCache cache = CacheManager.getInstance().getCache(BankCache.class);
+			SearchQueryCache searchQueryCache = CacheManager.getInstance().getCache(SearchQueryCache.class);
+			Map<Bank, List<TransactionDTO>> transactionMap = new HashMap<Bank, List<TransactionDTO>>();
+			List<SearchQuery> searchQueries = searchQueryCache.getSearchQueriesByMedium(Medium.SMS.getCode());
+			int batchSize = CacheManager.getInstance().getCache(PropertyMapCache.class)
+					.getPropertyInteger(Property.TRANSACTION_BATCH_SIZE);
+			for (MessageDto dto : request.getMessages()) {
+				for (SearchQuery query : searchQueries) {
+					if (query.getSearchQuery().equalsIgnoreCase(dto.getFrom())) {
+						List<Parser> parsers = cache.getParsersBySearchQueryId(query.getId());
+						TransactionDTO transaction = smsService.getTransactionDtoFromSms(dto.getMessage(), parsers,
+								dto.getDate());
+						if (transaction != null) {
+							List<TransactionDTO> dtoList = transactionMap.get(query.getBank());
+							if (dtoList == null) {
+								dtoList = new ArrayList<TransactionDTO>();
+							}
+							dtoList.add(transaction);
+							if (dtoList.size() == batchSize) {
+								LOG.info("Assigning Save transaction thread to executor");
+								taskExecutor.submit(new SaveTransactionThread(appUser, dtoList, query.getBank(),
+										transactionService, appUserBankService));
+								transactionMap.put(query.getBank(), new ArrayList<TransactionDTO>());
+							} else {
+								transactionMap.put(query.getBank(), dtoList);
+							}
+							break;
+						}
+
+					}
+				}
+			}
+			for (Map.Entry<Bank, List<TransactionDTO>> entry : transactionMap.entrySet()) {
+				if (entry.getValue() != null && entry.getValue().size() > 0) {
+					LOG.info("Assigning Save transaction thread to executor");
+					taskExecutor.submit(new SaveTransactionThread(appUser, entry.getValue(), entry.getKey(),
+							transactionService, appUserBankService));
+				}
+			}
+		} else {
+			LOG.info("No messages received to be saved");
+		}
+		return new BaseResponse();
 	}
 
 }

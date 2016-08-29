@@ -11,6 +11,7 @@ import com.champ.core.cache.BankCache;
 import com.champ.core.dto.SearchQueryParserDto;
 import com.champ.core.entity.AppUserLinkedAccount;
 import com.champ.core.entity.Bank;
+import com.champ.core.enums.Medium;
 import com.champ.core.utility.CacheManager;
 import com.champ.core.utility.DateUtils;
 import com.champ.core.utility.DateUtils.TimeUnit;
@@ -64,8 +65,11 @@ public class UserTransactionThread implements Runnable {
 				.getSearchQueryParserByBankName(bank.getName());
 		if (searchQueries != null && searchQueries.size() > 0) {
 			for (SearchQueryParserDto dto : searchQueries) {
-				gmailClient.getMessages(account, dto.getSearchQuery(), dto.getParser(), bank);
-				LOG.info("All transactions saved");
+				if (dto.getSearchQuery() != null && dto.getSearchQuery().getMedium() != null
+						&& Medium.EMAIL.getCode().equals(dto.getSearchQuery().getMedium())) {
+					gmailClient.getMessages(account, dto.getSearchQuery(), dto.getParser(), bank);
+					LOG.info("All transactions saved");
+				}
 			}
 		} else {
 			LOG.info("Search Queries not found for bank {}", bank.getName());

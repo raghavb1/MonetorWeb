@@ -2,9 +2,11 @@ package com.champ.services.impl;
 
 import java.math.BigInteger;
 import java.security.SecureRandom;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.regex.Matcher;
 
 import javax.transaction.Transactional;
 
@@ -186,6 +188,19 @@ public class ConverterServiceImpl implements IConverterService {
 		newTransaction.setTransactionDate(transaction.getTransactionDate());
 		newTransaction.setUserDefined(true);
 		return newTransaction;
+	}
+
+	public TransactionDTO getTransactionDtoFromMessage(Matcher matcher, Date transactionDate) throws ParseException {
+		TransactionDTO transaction = new TransactionDTO();
+		transaction.setAmount(Double.parseDouble(matcher.group("amount").replace(",", "")));
+		transaction.setPaymentModeString(matcher.group("transactionType").trim());
+		transaction.setSubMerchant(matcher.group("merchant").trim());
+		transaction.setBalance(Double.parseDouble(matcher.group("balance").replace(",", "")));
+		if(transactionDate == null){
+			transactionDate = new Date();
+		}
+		transaction.setDate(transactionDate);
+		return transaction;
 	}
 
 }

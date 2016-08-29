@@ -1,5 +1,6 @@
 package com.champ.web.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.champ.core.entity.SearchQuery;
+import com.champ.core.enums.Medium;
 import com.champ.services.IBankService;
 import com.champ.services.ISearchQueryService;
 
@@ -35,6 +37,10 @@ public class SearchQueryController {
 	public String addSearchQuery(ModelMap map) {
 		map.put("searchQuery", new SearchQuery());
 		map.put("banks", bankService.getAllBanks());
+		List<String> mediums = new ArrayList<String>();
+		mediums.add(Medium.SMS.getCode());
+		mediums.add(Medium.EMAIL.getCode());
+		map.put("mediums", mediums);
 		return "SearchQuery/create";
 	}
 
@@ -44,6 +50,7 @@ public class SearchQueryController {
 			SearchQuery persistedSearchQuery = searchQueryService.getSearchQueryById(searchQuery.getId());
 			persistedSearchQuery.setBank(searchQuery.getBank());
 			persistedSearchQuery.setSearchQuery(searchQuery.getSearchQuery());
+			persistedSearchQuery.setMedium(searchQuery.getMedium());
 			searchQueryService.saveOrUpdateSearchQuery(persistedSearchQuery);
 		} else {
 			searchQueryService.saveOrUpdateSearchQuery(searchQuery);
@@ -55,11 +62,14 @@ public class SearchQueryController {
 	}
 
 	@RequestMapping(value = "/edit/{id}", method = RequestMethod.GET)
-	public String editSearchQuery(@PathVariable("id") Long id, ModelMap map)
-	{
+	public String editSearchQuery(@PathVariable("id") Long id, ModelMap map) {
 		SearchQuery searchQuery = searchQueryService.getSearchQueryById(id);
 		map.put("searchQuery", searchQuery);
 		map.put("banks", bankService.getAllBanks());
+		List<String> mediums = new ArrayList<String>();
+		mediums.add(Medium.SMS.getCode());
+		mediums.add(Medium.EMAIL.getCode());
+		map.put("mediums", mediums);
 		return "SearchQuery/create";
 	}
 }

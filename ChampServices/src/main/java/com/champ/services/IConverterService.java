@@ -1,6 +1,9 @@
 package com.champ.services;
 
+import java.text.ParseException;
+import java.util.Date;
 import java.util.List;
+import java.util.regex.Matcher;
 
 import com.champ.base.dto.UserMappedTransaction;
 import com.champ.base.response.UserBank;
@@ -15,7 +18,8 @@ import com.champ.gmail.api.response.UserInfoResponse;
 
 public interface IConverterService {
 
-	public AppUserLinkedAccount getUserFromRequest(GmailTokensResponse request, UserInfoResponse userInfo, AppUser user, AppUserLinkedAccount linkedAccount);
+	public AppUserLinkedAccount getUserFromRequest(GmailTokensResponse request, UserInfoResponse userInfo, AppUser user,
+			AppUserLinkedAccount linkedAccount);
 
 	public List<UserBank> getUserBankFromBanks(List<Bank> banks);
 
@@ -24,6 +28,8 @@ public interface IConverterService {
 	public String generateTokenForUser();
 
 	public AppUserTransaction getTransactionFromDto(TransactionDTO dto, AppUser user, Bank bank);
-	
+
 	public AppUserTransaction getTransactionFromDto(UserMappedTransaction transaction, String email);
+
+	public TransactionDTO getTransactionDtoFromMessage(Matcher matcher, Date transactionDate) throws ParseException;
 }

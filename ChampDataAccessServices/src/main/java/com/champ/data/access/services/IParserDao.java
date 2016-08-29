@@ -11,4 +11,5 @@ public interface IParserDao {
 	public void saveOrUpdateParser(Parser parser);
 
 	public List<Parser> getAllParser();
+	
 }

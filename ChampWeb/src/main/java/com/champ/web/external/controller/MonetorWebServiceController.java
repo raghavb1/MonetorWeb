@@ -149,14 +149,14 @@ public class MonetorWebServiceController {
 		LOG.info("Sending Response for saving transactions for a user {}", response);
 		return response;
 	}
-	
+
 	@RequestMapping(value = "/saveMessages", produces = "application/json", method = RequestMethod.POST)
 	@ResponseBody
 	public BaseResponse saveUserMessages(@RequestBody SaveMessageRequest request) throws Exception {
 		LOG.info("Request Recieved for saving user messages for a user {}", request);
 		BaseResponse response = null;
 		if (validationService.validateSaveMessageCall(request)) {
-//			response = apiService.saveUserTransactions(request);
+			response = apiService.saveUserMessages(request);
 		} else {
 			LOG.info("Invalid Request");
 			throw new MonetorServiceException(ApiResponseCodes.INVALID_REQUEST);

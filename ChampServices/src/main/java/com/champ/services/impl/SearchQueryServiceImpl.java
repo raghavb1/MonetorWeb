@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.champ.core.entity.SearchQuery;
+import com.champ.core.enums.Medium;
 import com.champ.data.access.services.ISearchQueryDao;
 import com.champ.services.ISearchQueryService;
 
@@ -28,6 +29,10 @@ public class SearchQueryServiceImpl implements ISearchQueryService {
 
 	public List<SearchQuery> getAllSearchQuery() {
 		return searchQueryDao.getAllSearchQuery();
+	}
+
+	public List<SearchQuery> getSearchQueryByMedium(Medium medium) {
+		return searchQueryDao.getSearchQueryByMedium(medium);
 	}
 
 }

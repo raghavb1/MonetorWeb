@@ -3,9 +3,10 @@ package com.champ.core.entity;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
 @Entity
-@Table(name = "bank")
+@Table(name = "bank", uniqueConstraints = @UniqueConstraint(columnNames = { "name" }))
 public class Bank extends BaseEntity {
 
 	/**

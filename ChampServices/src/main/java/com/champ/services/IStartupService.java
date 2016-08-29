@@ -20,4 +20,5 @@ public interface IStartupService {
 
 	public void loadCategories();
 
+	public void loadSearchQueries();
 }

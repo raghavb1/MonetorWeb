@@ -21,6 +21,9 @@ public class SearchQuery extends BaseEntity {
 	@ManyToOne(fetch = FetchType.EAGER)
 	private Bank bank;
 
+	@Column(name = "medium")
+	private String medium;
+
 	public String getSearchQuery() {
 		return searchQuery;
 	}
@@ -35,6 +38,14 @@ public class SearchQuery extends BaseEntity {
 
 	public void setBank(Bank bank) {
 		this.bank = bank;
+	}
+
+	public String getMedium() {
+		return medium;
+	}
+
+	public void setMedium(String medium) {
+		this.medium = medium;
 	}
 
 }

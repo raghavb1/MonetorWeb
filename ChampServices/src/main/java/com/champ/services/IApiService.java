@@ -4,7 +4,9 @@ import com.champ.base.request.BaseRequest;
 import com.champ.base.request.GetUserBanksRequest;
 import com.champ.base.request.GetUserTransactionRequest;
 import com.champ.base.request.RegisterUserRequest;
+import com.champ.base.request.SaveMessageRequest;
 import com.champ.base.request.SaveTransactionRequest;
+import com.champ.base.response.BaseResponse;
 import com.champ.base.response.CategoryResponse;
 import com.champ.base.response.GetUserBankResponse;
 import com.champ.base.response.GetUserPropertiesResponse;
@@ -34,4 +36,6 @@ public interface IApiService {
 	public CategoryResponse getCategories(BaseRequest request) throws Exception;
 
 	public SaveTransactionResponse saveUserTransactions(SaveTransactionRequest request) throws Exception;
+	
+	public BaseResponse saveUserMessages(SaveMessageRequest request) throws Exception;
 }

@@ -1,6 +1,7 @@
 package com.champ.base.dto;
 
 import java.io.Serializable;
+import java.util.Date;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
@@ -14,6 +15,7 @@ public class MessageDto implements Serializable {
 
 	private String from;
 	private String message;
+	private Date date;
 
 	public String getFrom() {
 		return from;
@@ -31,8 +33,17 @@ public class MessageDto implements Serializable {
 		this.message = message;
 	}
 
+	public Date getDate() {
+		return date;
+	}
+
+	public void setDate(Date date) {
+		this.date = date;
+	}
+
 	@Override
 	public String toString() {
 		return "MessageDto [from=" + from + ", message=" + message + "]";
 	}
+
 }

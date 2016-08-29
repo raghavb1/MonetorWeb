@@ -21,6 +21,7 @@ import com.champ.core.cache.BankCache;
 import com.champ.core.cache.CategoryCache;
 import com.champ.core.cache.PaymentModeCache;
 import com.champ.core.cache.PropertyMapCache;
+import com.champ.core.cache.SearchQueryCache;
 import com.champ.core.cache.SubMerchantCache;
 import com.champ.core.dto.SearchQueryParserDto;
 import com.champ.core.entity.AppUser;
@@ -31,6 +32,7 @@ import com.champ.core.entity.Parser;
 import com.champ.core.entity.PaymentMode;
 import com.champ.core.entity.SearchQuery;
 import com.champ.core.entity.SubMerchant;
+import com.champ.core.enums.Medium;
 import com.champ.core.enums.Property;
 import com.champ.core.utility.CacheManager;
 import com.champ.data.access.services.IPropertyDao;
@@ -42,6 +44,7 @@ import com.champ.services.IBankService;
 import com.champ.services.ICategoryService;
 import com.champ.services.IGmailClientService;
 import com.champ.services.IPaymentModeService;
+import com.champ.services.ISearchQueryService;
 import com.champ.services.IStartupService;
 import com.champ.services.ISubMerchantService;
 import com.champ.services.ITransactionService;
@@ -89,6 +92,9 @@ public class StartupServiceImpl implements IStartupService, ApplicationContextAw
 	@Autowired
 	private IAppUserLinkedAccountService appUserLinkedAccountService;
 
+	@Autowired
+	private ISearchQueryService searchQueryService;
+
 	private TransactionExecutorServiceWrapper transactionExecutorServiceWrapper = TransactionExecutorServiceWrapper
 			.getInstance();
 
@@ -104,6 +110,7 @@ public class StartupServiceImpl implements IStartupService, ApplicationContextAw
 		loadPaymentModeCache();
 		loadAppUserBanks();
 		loadBankCache();
+		loadSearchQueries();
 		loadCategories();
 		loadTransactionExecutor();
 		loadSubmerchantsCache();
@@ -218,6 +225,7 @@ public class StartupServiceImpl implements IStartupService, ApplicationContextAw
 				if (searchQueries != null && searchQueries.size() > 0) {
 					for (SearchQuery query : searchQueries) {
 						List<Parser> parsers = bankService.getParserForSearchQuery(query.getId());
+						cache.addParsersBySearchQuery(query.getId(), parsers);
 						for (Parser parser : parsers) {
 							cache.addBank(bank, new SearchQueryParserDto(query, parser));
 						}
@@ -337,6 +345,17 @@ public class StartupServiceImpl implements IStartupService, ApplicationContextAw
 		}
 		CacheManager.getInstance().setCache(cache);
 		LOG.info("Loaded categories Cache");
+	}
+
+	public void loadSearchQueries() {
+		LOG.info("Loading search query cache");
+		List<SearchQuery> smsSearchQueries = searchQueryService.getSearchQueryByMedium(Medium.SMS);
+		List<SearchQuery> emailSearchQueries = searchQueryService.getSearchQueryByMedium(Medium.EMAIL);
+		SearchQueryCache cache = new SearchQueryCache();
+		cache.addSearchQueries(Medium.SMS.getCode(), smsSearchQueries);
+		cache.addSearchQueries(Medium.EMAIL.getCode(), emailSearchQueries);
+		CacheManager.getInstance().setCache(cache);
+		LOG.info("Loaded search query Cache");
 	}
 
 }
